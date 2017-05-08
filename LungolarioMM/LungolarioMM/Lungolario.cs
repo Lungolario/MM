@@ -6,7 +6,7 @@ using ExcelDna.Integration;
 
 namespace LungolarioMM
 {
-    public class FirstAddIn
+    public class Lungolario
     {
 
         [ExcelFunction(Description = "Adds Hello World to the start of the string given as input")]
