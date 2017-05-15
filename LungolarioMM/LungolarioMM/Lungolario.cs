@@ -22,6 +22,7 @@ namespace LungolarioMM
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
             string anyexception="";
+            mmObjHandler.rangeForDisplay = range;
             ExcelReference caller = XlCall.Excel(XlCall.xlfCaller) as ExcelReference;
             try
             {
@@ -31,7 +32,25 @@ namespace LungolarioMM
             {
                 anyexception = e.Message.ToString();
             }
-            return mmObjHandler.CountAllObjects() + anyexception;
+            return mmObjHandler.CountAllObjects() + "\n" + anyexception;
+        }
+        [ExcelFunction(Description = "Delete all Objects")]
+        public static void mmDeleteObj()
+        {
+            mmObjHandler.objs.Clear();
+        }
+        [ExcelFunction(Description = "Delete all Objects")]
+        public static void mmListObj()
+        {
+            //Not implemented yet. Working on it.
+            //int i = mmObjHandler.rangeForDisplay;
+            //foreach(DNAObject obj in mmObjHandler.objs)
+            //{
+            //    ExcelReference cellOfName = new ExcelReference();
+            //    cellOfName.SetValue(obj.name);
+            //    ExcelReference cellOfType = new ExcelReference();
+            //    cellOfType.SetValue(obj.name);
+            //}
         }
     }
 }
