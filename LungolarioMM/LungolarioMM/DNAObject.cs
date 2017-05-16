@@ -13,12 +13,17 @@ namespace LungolarioMM
         {
             this.name = name;
         }
+        public abstract string ReturnType();
     }
     public class Model : DNAObject
     {
         public override void CreateObject(string name)
         {
             base.CreateObject(name);
+        }
+        public override string ReturnType()
+        {
+            return "Model";
         }
     }
     public class Curve : DNAObject
@@ -27,12 +32,20 @@ namespace LungolarioMM
         {
             base.CreateObject(name);
         }
+        public override string ReturnType()
+        {
+            return "Curve";
+        }
     }
     public class Vol : DNAObject
     {
         public override void CreateObject(string name)
         {
             base.CreateObject(name);
+        }
+        public override string ReturnType()
+        {
+            return "Vol";
         }
     }
     public class Results : DNAObject
@@ -41,11 +54,16 @@ namespace LungolarioMM
         {
             base.CreateObject(name);
         }
+        public override string ReturnType()
+        {
+            return "Results";
+        }
     }
     public class MMObjectHandler
     {
         public List<DNAObject> objs = new List<DNAObject>();
-        public object[,] rangeForDisplay;
+        public int startRow,startCol,endRow,endCol;
+        public string startRef, endRef;
         public void CreateObject(string name, string type)
         {
             bool found = false;

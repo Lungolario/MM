@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ExcelDna.Integration;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace LungolarioMM
 {
@@ -16,14 +14,16 @@ namespace LungolarioMM
         [ExcelFunction(Description = "Adds Hello World to the start of the string given as input")]
         public static string HelloWorld(string name)
         {
-            return "Hello World " + name;
+            return "Hello World " + name + DateTime.Now;
         }
-        [ExcelFunction(Description = "Creates an object with name and type")]
-        public static string mmCreateObj(string objName, string objType, object[,] range)
+
+
+        [ExcelFunction(Description = "Creates an object with name and type", IsMacroType = true)]
+        public static string mmCreateObj(string objName, string objType, [ExcelArgument(AllowReference = false)]object[,] range)
         {
             string anyexception="";
-            mmObjHandler.rangeForDisplay = range;
-            ExcelReference caller = XlCall.Excel(XlCall.xlfCaller) as ExcelReference;
+            range[0, 0].ToString();
+
             try
             {
                 mmObjHandler.CreateObject(objName, objType.ToUpper());
@@ -32,24 +32,28 @@ namespace LungolarioMM
             {
                 anyexception = e.Message.ToString();
             }
-            return mmObjHandler.CountAllObjects() + "\n" + anyexception;
+            return mmObjHandler.CountAllObjects() + "\n" + anyexception + " ";
         }
+
+
         [ExcelFunction(Description = "Delete all Objects")]
         public static void mmDeleteObj()
         {
             mmObjHandler.objs.Clear();
         }
+
+
         [ExcelFunction(Description = "Delete all Objects")]
         public static void mmListObj()
         {
-            //Not implemented yet. Working on it.
-            //int i = mmObjHandler.rangeForDisplay;
-            //foreach(DNAObject obj in mmObjHandler.objs)
+            //int i = 0;
+            //foreach (DNAObject obj in mmObjHandler.objs)
             //{
-            //    ExcelReference cellOfName = new ExcelReference();
+            //    ExcelReference cellOfName = new ExcelReference(mmObjHandler.startRow+i,mmObjHandler.startCol);
             //    cellOfName.SetValue(obj.name);
-            //    ExcelReference cellOfType = new ExcelReference();
-            //    cellOfType.SetValue(obj.name);
+            //    ExcelReference cellOfType = new ExcelReference(mmObjHandler.startRow+i, mmObjHandler.startCol+1);
+            //    cellOfType.SetValue(obj.ReturnType());
+            //    i++;
             //}
         }
     }
