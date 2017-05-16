@@ -19,20 +19,18 @@ namespace LungolarioMM
 
 
         [ExcelFunction(Description = "Creates an object with name and type", IsMacroType = true)]
-        public static string mmCreateObj(string objName, string objType, [ExcelArgument(AllowReference = false)]object[,] range)
+        public static string mmCreateObj(string objName, string objType, object[,] range)
         {
-            string anyexception="";
-            range[0, 0].ToString();
-
+            string anyexception = "";
+            mmObjHandler.rangeForDisplay = range;
             try
             {
-                mmObjHandler.CreateObject(objName, objType.ToUpper());
+                return objName + ":" + mmObjHandler.CreateObject(objName, objType.ToUpper());
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                anyexception = e.Message.ToString();
+                return anyexception = e.Message.ToString();
             }
-            return mmObjHandler.CountAllObjects() + "\n" + anyexception + " ";
         }
 
 

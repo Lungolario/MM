@@ -13,17 +13,12 @@ namespace LungolarioMM
         {
             this.name = name;
         }
-        public abstract string ReturnType();
     }
     public class Model : DNAObject
     {
         public override void CreateObject(string name)
         {
             base.CreateObject(name);
-        }
-        public override string ReturnType()
-        {
-            return "Model";
         }
     }
     public class Curve : DNAObject
@@ -32,20 +27,12 @@ namespace LungolarioMM
         {
             base.CreateObject(name);
         }
-        public override string ReturnType()
-        {
-            return "Curve";
-        }
     }
     public class Vol : DNAObject
     {
         public override void CreateObject(string name)
         {
             base.CreateObject(name);
-        }
-        public override string ReturnType()
-        {
-            return "Vol";
         }
     }
     public class Results : DNAObject
@@ -54,111 +41,45 @@ namespace LungolarioMM
         {
             base.CreateObject(name);
         }
-        public override string ReturnType()
-        {
-            return "Results";
-        }
     }
     public class MMObjectHandler
     {
         public List<DNAObject> objs = new List<DNAObject>();
-        public int startRow,startCol,endRow,endCol;
-        public string startRef, endRef;
-        public void CreateObject(string name, string type)
+        public object[,] rangeForDisplay;
+        public int CreateObject(string name, string type)
         {
-            bool found = false;
             switch (type)
             {
                 case "MODEL":
-                    foreach (var obj in objs.OfType<Model>())
-                    {
-                        if (obj.name == name)
-                        {
-                            obj.counter++;
-                            found = true;
-                        }
-                    }
-                    if (!found)
-                    {
-                        DNAObject obj = new Model();
-                        obj.CreateObject(name);
-                        obj.counter++;
-                        objs.Add(obj);
-                    }
-                    break;
+                    return CreateObject<Model>(name);
                 case "CURVE":
-                    foreach (var obj in objs.OfType<Curve>())
-                    {
-                        if (obj.name == name)
-                        {
-                            obj.counter++;
-                            found = true;
-                        }
-                    }
-                    if (!found)
-                    {
-                        DNAObject obj = new Curve();
-                        obj.CreateObject(name);
-                        obj.counter++;
-                        objs.Add(obj);
-                    }
-                    break;
+                    return CreateObject<Curve>(name);
                 case "VOL":
-                    foreach (var obj in objs.OfType<Vol>())
-                    {
-                        if (obj.name == name)
-                        {
-                            obj.counter++;
-                            found = true;
-                        }
-                    }
-                    if (!found)
-                    {
-                        DNAObject obj = new Vol();
-                        obj.CreateObject(name);
-                        obj.counter++;
-                        objs.Add(obj);
-                    }
-                    break;
+                    return CreateObject<Vol>(name);
                 case "RESULTS":
-                    foreach (var obj in objs.OfType<Results>())
-                    {
-                        if (obj.name == name)
-                        {
-                            obj.counter++;
-                            found = true;
-                        }
-                    }
-                    if (!found)
-                    {
-                        DNAObject obj = new Results();
-                        obj.CreateObject(name);
-                        obj.counter++;
-                        objs.Add(obj);
-                    }
-                    break;
+                    return CreateObject<Results>(name);
                 default:
                     throw new Exception("Cannot add this object. No type found!(" + type + ")");
             }
-
         }
-        public string CountAllObjects()
+        public int CreateObject<T>(string name) where T : DNAObject, new()
         {
-            string countedObjs = "";
-
-            foreach (var x in objs)
+            foreach (var obj2 in objs.OfType<T>())
             {
-                if (x.counter > 0)
-                    countedObjs += x.name + ":" + x.counter + " ";
+                if (obj2.name == name)
+                {
+                    obj2.counter++;
+                    return obj2.counter;
+                }
             }
-            return countedObjs;
+            DNAObject obj = new T();
+            obj.CreateObject(name);
+            obj.counter++;
+            objs.Add(obj);
+            return obj.counter;
         }
     }
 }
-
-
-
-
 
 
 
