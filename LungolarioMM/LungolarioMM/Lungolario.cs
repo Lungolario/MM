@@ -23,16 +23,14 @@ namespace LungolarioMM
         {
             string anyexception="";
             mmObjHandler.rangeForDisplay = range;
-            ExcelReference caller = XlCall.Excel(XlCall.xlfCaller) as ExcelReference;
             try
             {
-                mmObjHandler.CreateObject(objName, objType.ToUpper());
+                return objName + ":" + mmObjHandler.CreateObject(objName, objType.ToUpper());
             }
             catch(Exception e)
             {
-                anyexception = e.Message.ToString();
+                return anyexception = e.Message.ToString();
             }
-            return mmObjHandler.CountAllObjects() + "\n" + anyexception;
         }
         [ExcelFunction(Description = "Delete all Objects")]
         public static void mmDeleteObj()
