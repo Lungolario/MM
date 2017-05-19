@@ -8,7 +8,7 @@ namespace LungolarioMM
     public abstract class DNAObject
     {
         public string name;
-        public int counter;
+        public int counter = 0;
         public virtual void CreateObject(string name)
         {
             this.name = name;
@@ -64,17 +64,21 @@ namespace LungolarioMM
         }
         public int CreateObject<T>(string name) where T:DNAObject,new()
         {
+            DNAObject obj = new T();
+            obj.CreateObject(name);
+            int oldcounter = -1;
+            int index = -1;
             foreach (var obj2 in objs.OfType<T>())
             {
                 if (obj2.name == name)
                 {
-                    obj2.counter++;
-                    return obj2.counter;
+                    index = objs.IndexOf(obj2);
+                    oldcounter = obj2.counter;
                 }
             }
-            DNAObject obj = new T();
-            obj.CreateObject(name);
-            obj.counter++;
+            if (index > -1)
+                objs.RemoveAt(index);
+            obj.counter = 1 + oldcounter;
             objs.Add(obj);
             return obj.counter;
         }

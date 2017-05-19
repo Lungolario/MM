@@ -32,6 +32,7 @@ namespace LungolarioMM
                 return anyexception = e.Message.ToString();
             }
         }
+
         [ExcelFunction(Description = "Delete all Objects")]
         public static string mmDeleteObjs()
         {
@@ -39,18 +40,20 @@ namespace LungolarioMM
             mmObjHandler.objs.Clear();
             return "Deleted " + i + " object(s).";
         }
-        [ExcelFunction(Description = "Delete all Objects")]
-        public static void mmListObjs()
+
+        [ExcelFunction(Description = "List all Objects")]
+        public static object[,] mmListObjs()
         {
-            //Not implemented yet. Working on it.
-            //int i = mmObjHandler.rangeForDisplay;
-            //foreach(DNAObject obj in mmObjHandler.objs)
-            //{
-            //    ExcelReference cellOfName = new ExcelReference();
-            //    cellOfName.SetValue(obj.name);
-            //    ExcelReference cellOfType = new ExcelReference();
-            //    cellOfType.SetValue(obj.name);
-            //}
+            string[,] results;
+            int i = mmObjHandler.objs.Count;
+            results = new string[i, 2];
+            int j = 0;
+            foreach(var obj in mmObjHandler.objs)
+            {
+                results[j, 0] = obj.name;
+                results[j++, 1] = obj.GetType().Name.ToUpper();
+            }
+            return results;
         }
     }
 }
