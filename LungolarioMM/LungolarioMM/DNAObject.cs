@@ -1,190 +1,75 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace LungolarioMM
 {
-    public abstract class DNAObject
+    public abstract class ExcelObject
     {
         public string name;
         public int counter = 0;
-        public virtual void CreateObject(string name)
+        public virtual void CreateObject(string name, object[,] range)
         {
             this.name = name;
         }
     }
-    public class Model : DNAObject
+    public class Model : ExcelObject
     {
-        public override void CreateObject(string name)
-        {
-            base.CreateObject(name);
-        }
+        public string modelname;
     }
-    public class Curve : DNAObject
+    public class Curve : ExcelObject
     {
-        public override void CreateObject(string name)
-        {
-            base.CreateObject(name);
-        }
+        public string currency;
+        public double rate;
     }
-    public class Vol : DNAObject
+    public class Vol : ExcelObject
     {
-        public override void CreateObject(string name)
-        {
-            base.CreateObject(name);
-        }
+        public string currency;
+        public double volatility;
     }
-    public class Results : DNAObject
+    public class Results : ExcelObject
     {
-        public override void CreateObject(string name)
-        {
-            base.CreateObject(name);
-        }
+        public double result;
     }
-    public class MMObjectHandler
+    public class ExcelObjectHandler
     {
-        public List<DNAObject> objs = new List<DNAObject>();
-        public object[,] rangeForDisplay;
-        public int CreateObject(string name, string type)
+        public List<ExcelObject> objList = new List<ExcelObject>();
+        public int CreateObject(string name, string type, object[,] range)
         {
             switch(type)
             {
                 case "MODEL":
-                    return CreateObject<Model>(name);
+                    return CreateObject<Model>(name, range);
                 case "CURVE":
-                    return CreateObject<Curve>(name);
+                    return CreateObject<Curve>(name, range);
                 case "VOL":
-                    return CreateObject<Vol>(name);
+                    return CreateObject<Vol>(name, range);
                 case "RESULTS":
-                    return CreateObject<Results>(name);
+                    return CreateObject<Results>(name, range);
                 default:
                     throw new Exception("Cannot add this object. No type found!(" + type + ")");
             }
         }
-        public int CreateObject<T>(string name) where T:DNAObject,new()
+        public int CreateObject<T>(string name, object[,] range) where T : ExcelObject, new()
         {
-            DNAObject obj = new T();
-            obj.CreateObject(name);
-            int oldcounter = -1;
+            ExcelObject newObj = new T();
+            newObj.CreateObject(name, range);
+
+            //handle if object with name and type already existed
             int index = -1;
-            foreach (var obj2 in objs.OfType<T>())
+            foreach (var existingObj in objList.OfType<T>())
             {
-                if (obj2.name == name)
+                if (existingObj.name == name)
                 {
-                    index = objs.IndexOf(obj2);
-                    oldcounter = obj2.counter;
+                    index = objList.IndexOf(existingObj);
+                    newObj.counter = 1 + existingObj.counter;
                 }
             }
             if (index > -1)
-                objs.RemoveAt(index);
-            obj.counter = 1 + oldcounter;
-            objs.Add(obj);
-            return obj.counter;
+                objList.RemoveAt(index);
+
+            objList.Add(newObj);
+            return newObj.counter;
         }
     }
 }
-
-
-
-
-/*****************
- * Don't delete this code. Can to be used later on if something is wrong.
-***************************************************/
-
-
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-
-//namespace AbstractClassTest
-//{
-//    public abstract class DNAObject
-//    {
-//        public string name;
-//        public virtual void CreateObject(string name)
-//        {
-//            this.name = name;
-//        }
-//    }
-//    public class Model : DNAObject
-//    {
-//        public override void CreateObject(string name)
-//        {
-//            base.CreateObject(name);
-//        }
-//    }
-//    public class Curve : DNAObject
-//    {
-//        public override void CreateObject(string name)
-//        {
-//            base.CreateObject(name);
-//        }
-//    }
-//    public class Vol : DNAObject
-//    {
-//        public override void CreateObject(string name)
-//        {
-//            base.CreateObject(name);
-//        }
-//    }
-//    public class Results : DNAObject
-//    {
-//        public override void CreateObject(string name)
-//        {
-//            base.CreateObject(name);
-//        }
-//    }
-//    public class MMObjectHandler
-//    {
-//        public List<DNAObject> objs = new List<DNAObject>();
-//        public void CreateObject(string name, string type)
-//        {
-//            switch (type)
-//            {
-//                case "MODEL":
-//                    DNAObject model = new Model();
-//                    model.name = name;
-//                    objs.Add(model);
-//                    break;
-//                case "CURVE":
-//                    DNAObject curve = new Curve();
-//                    curve.name = name;
-//                    objs.Add(curve);
-//                    break;
-//                case "VOL":
-//                    DNAObject vol = new Vol();
-//                    vol.name = name;
-//                    objs.Add(vol);
-//                    break;
-//                case "RESULTS":
-//                    DNAObject results = new Results();
-//                    results.name = name;
-//                    objs.Add(results);
-//                    break;
-//                default:
-//                    throw new Exception("No type found!");
-//            }
-
-//        }
-//        public int CountObjectByName(string name)
-//        {
-//            return objs.Count(x => x.name == name);
-//        }
-//        public string CountAllObjects()
-//        {
-//            string countedObjs = "";
-//            var q = from x in objs
-//                    group x by x.name into g
-//                    let count = g.Count()
-//                    orderby count descending
-//                    select new { Name = g.Key, Count = count };
-//            foreach (var x in q)
-//            {
-//                countedObjs += x.Name + ":" + x.Count;
-//            }
-//            return countedObjs;
-//        }
-//    }
-//}
