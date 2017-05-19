@@ -33,12 +33,14 @@ namespace LungolarioMM
             }
         }
         [ExcelFunction(Description = "Delete all Objects")]
-        public static void mmDeleteObj()
+        public static string mmDeleteObjs()
         {
+            int i = mmObjHandler.objs.Count;
             mmObjHandler.objs.Clear();
+            return "Deleted " + i + " object(s).";
         }
         [ExcelFunction(Description = "Delete all Objects")]
-        public static void mmListObj()
+        public static void mmListObjs()
         {
             //Not implemented yet. Working on it.
             //int i = mmObjHandler.rangeForDisplay;
