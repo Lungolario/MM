@@ -24,7 +24,37 @@ namespace LungolarioMM
             }
         }
 
-        [ExcelFunction(Description = "Delete all Objects")]
+        [ExcelFunction(Description = "Display an object")]
+        public static object[,] mmDisplayObj(string objName, string objType)
+        {
+            string[,] results;
+            //Get the object
+            ExcelObject dispObj = null;
+            foreach(var obj in objectHandler.objList)
+            {
+                if (obj.name.ToUpper() == objName.ToUpper() && obj.GetType().Name.ToUpper() == objType.ToUpper())
+                    dispObj = obj;
+            }
+            if (dispObj == null)
+            {
+                results = new string[1, 1];
+                results[0, 0] = "Object not found.";
+
+            }
+            else
+            {
+                System.Reflection.PropertyInfo[] list = dispObj.GetType().GetProperties();
+                results = new string[list.Length, 2];
+                for (int i = 0; i < list.Length; i++)
+                {
+                    results[i, 0] = list[i].Name;
+                    results[i, 1] = list[i].GetValue(dispObj, null).ToString();
+                }
+            }
+            return results;
+        }
+
+        [ExcelFunction(Description = "Delete all objects")]
         public static string mmDeleteObjs()
         {
             int i = objectHandler.objList.Count;
@@ -32,7 +62,7 @@ namespace LungolarioMM
             return "Deleted " + i + " object(s).";
         }
 
-        [ExcelFunction(Description = "List all Objects")]
+        [ExcelFunction(Description = "List all objects")]
         public static object[,] mmListObjs()
         {
             string[,] results;

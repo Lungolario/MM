@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace LungolarioMM
 {
@@ -10,26 +11,36 @@ namespace LungolarioMM
         public int counter = 0;
         public virtual void CreateObject(string name, object[,] range)
         {
+            //keep for debugging
+            //Debug.Assert(false);
             this.name = name;
+            if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
+            {
+                System.Reflection.PropertyInfo[] list = this.GetType().GetProperties();
+                for (int i = 0; i < range.GetLength(0); i++)
+                    for (int j = 0; j < list.Length; j++)
+                        if (range[i,0].ToString().ToUpper() == list[j].Name.ToUpper())
+                            list[j].SetValue(this, range[i, 1], null);
+            }
         }
     }
     public class Model : ExcelObject
     {
-        public string modelname;
+        public string modelname { get; set; }
     }
     public class Curve : ExcelObject
     {
-        public string currency;
-        public double rate;
+        public string currency { get; set; }
+        public double rate { get; set; }
     }
     public class Vol : ExcelObject
     {
-        public string currency;
-        public double volatility;
+        public string currency { get; set; }
+        public double volatility { get; set; }
     }
     public class Results : ExcelObject
     {
-        public double result;
+        public double result { get; set; }
     }
     public class ExcelObjectHandler
     {
