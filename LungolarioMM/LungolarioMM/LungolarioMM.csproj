@@ -43,8 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DNAObject.cs" />
-    <Compile Include="Lungolario.cs" />
+    <Compile Include="ExcelObject.cs" />
+    <Compile Include="ExcelFunctions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

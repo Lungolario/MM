@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Diagnostics;
 
-namespace LungolarioMM
+namespace MMA
 {
     public abstract class ExcelObject
     {
@@ -11,8 +9,6 @@ namespace LungolarioMM
         public int counter = 0;
         public virtual void CreateObject(string name, object[,] range)
         {
-            //keep for debugging
-            //Debug.Assert(false);
             this.name = name;
             if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
             {
@@ -47,24 +43,27 @@ namespace LungolarioMM
         public List<ExcelObject> objList = new List<ExcelObject>();
         public int CreateObject(string name, string type, object[,] range)
         {
-            ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType("LungolarioMM." + type, true, true));
+            ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType("MMA." + type, true, true));
             newObj.CreateObject(name, range);
 
             //handle if object with name and type already existed
-            int index = -1;
-            foreach (var existingObj in objList)
+            ExcelObject existingObj = GetObject(name, type);
+            if (existingObj != null)
             {
-                if ((existingObj.name == name) && (newObj.GetType() == existingObj.GetType()))
-                {
-                    index = objList.IndexOf(existingObj);
-                    newObj.counter = 1 + existingObj.counter;
-                }
+                newObj.counter = 1 + existingObj.counter;
+                objList.Remove(existingObj);
             }
-            if (index > -1)
-                objList.RemoveAt(index);
-
+        
             objList.Add(newObj);
             return newObj.counter;
+        }
+
+        public ExcelObject GetObject(string name, string type)
+        {
+            foreach (var existingObj in objList)
+                if ((existingObj.name == name) && (existingObj.GetType().ToString().ToUpper() == "MMA." + type.ToUpper()))
+                    return existingObj;
+            return null;
         }
     }
 }

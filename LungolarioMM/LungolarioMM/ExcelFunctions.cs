@@ -1,7 +1,7 @@
 ﻿using System;
 using ExcelDna.Integration;
 
-namespace LungolarioMM
+namespace MMA
 {
     public class ExcelFunctions
     {
@@ -75,6 +75,16 @@ namespace LungolarioMM
                 results[j++, 1] = obj.GetType().Name.ToUpper();
             }
             return results;
+        }
+
+        [ExcelFunction(Description = "Get the instance of an object")]
+        public static string mmGetObj(string objName, string objType)
+        {
+            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            if (obj != null)
+                return objName.ToUpper() + ":" + obj.counter;
+            else
+                return "Object not found.";
         }
     }
 }
