@@ -47,30 +47,14 @@ namespace LungolarioMM
         public List<ExcelObject> objList = new List<ExcelObject>();
         public int CreateObject(string name, string type, object[,] range)
         {
-            switch(type)
-            {
-                case "MODEL":
-                    return CreateObject<Model>(name, range);
-                case "CURVE":
-                    return CreateObject<Curve>(name, range);
-                case "VOL":
-                    return CreateObject<Vol>(name, range);
-                case "RESULTS":
-                    return CreateObject<Results>(name, range);
-                default:
-                    throw new Exception("Cannot add this object. No type found!(" + type + ")");
-            }
-        }
-        public int CreateObject<T>(string name, object[,] range) where T : ExcelObject, new()
-        {
-            ExcelObject newObj = new T();
+            ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType("LungolarioMM." + type, true, true));
             newObj.CreateObject(name, range);
 
             //handle if object with name and type already existed
             int index = -1;
-            foreach (var existingObj in objList.OfType<T>())
+            foreach (var existingObj in objList)
             {
-                if (existingObj.name == name)
+                if ((existingObj.name == name) && (newObj.GetType() == existingObj.GetType()))
                 {
                     index = objList.IndexOf(existingObj);
                     newObj.counter = 1 + existingObj.counter;
