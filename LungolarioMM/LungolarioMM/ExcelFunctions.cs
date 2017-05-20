@@ -1,11 +1,12 @@
 ﻿using System;
 using ExcelDna.Integration;
 
+
 namespace MMA
 {
     public class ExcelFunctions
     {
-        static ExcelObjectHandler objectHandler= new ExcelObjectHandler();
+        static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
         ExcelFunctions()
         {
             objectHandler = new ExcelObjectHandler();
@@ -14,6 +15,7 @@ namespace MMA
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
+            objName = Tools.StringTrim(objName);
             try
             {
                 return objName + ":" + objectHandler.CreateObject(objName, objType.ToUpper(), range);
@@ -27,6 +29,7 @@ namespace MMA
         [ExcelFunction(Description = "Display an object")]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
+            objName = Tools.StringTrim(objName);
             string[,] results;
             //Get the object
             ExcelObject dispObj = null;
@@ -80,11 +83,34 @@ namespace MMA
         [ExcelFunction(Description = "Get the instance of an object")]
         public static string mmGetObj(string objName, string objType)
         {
-            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
             if (obj != null)
                 return objName.ToUpper() + ":" + obj.counter;
             else
                 return "Object not found.";
+        }
+
+        [ExcelFunction(Description = "Modify an object")]
+        public static string mmModifyObj(string objName, string objType, string key, object value)
+        {
+            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            if (obj == null)
+                return "Object not found.";
+            System.Reflection.PropertyInfo[] list = obj.GetType().GetProperties();
+            for (int i = 0; i < list.Length; i++)
+                if (key.ToUpper() == list[i].Name.ToUpper())
+                {
+                    try
+                    {
+                        list[i].SetValue(obj, value, null);
+                        return objName.ToUpper() + ":" + ++obj.counter;
+                    }
+                    catch(Exception e)
+                    {
+                        return e.Message.ToString();
+                    }
+                }
+            return "Object found, key not found.";
         }
     }
 }
