@@ -38,12 +38,12 @@ namespace MMA
             }
             else
             {
-                System.Reflection.PropertyInfo[] list = dispObj.GetType().GetProperties();
-                results = new string[list.Length, 2];
-                for (int i = 0; i < list.Length; i++)
+                System.Reflection.PropertyInfo[] keyList = dispObj.GetType().GetProperties();
+                results = new string[keyList.Length, 2];
+                for (int i = 0; i < keyList.Length; i++)
                 {
-                    results[i, 0] = list[i].Name;
-                    results[i, 1] = list[i].GetValue(dispObj, null).ToString();
+                    results[i, 0] = keyList[i].Name;
+                    results[i, 1] = keyList[i].GetValue(dispObj, null).ToString();
                 }
             }
             return results;
@@ -78,9 +78,31 @@ namespace MMA
             objName = Tools.StringTrim(objName);
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj != null)
-                return objName.ToUpper() + ":" + obj.counter;
+                return objName + ":" + obj.counter;
             else
                 return "Object not found.";
+        }
+
+        [ExcelFunction(Description = "Get the value of a key of an object")]
+        public static string mmGetObjInfo(string objName, string objType, string key)
+        {
+            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            if (obj == null)
+                return "Object not found.";
+            System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
+            for (int i = 0; i < keyList.Length; i++)
+                if (key.ToUpper() == keyList[i].Name.ToUpper())
+                {
+                    try
+                    {
+                        return keyList[i].GetValue(obj, null).ToString();
+                    }
+                    catch (Exception e)
+                    {
+                        return e.Message.ToString();
+                    }
+                }
+            return "Object found, key not found.";
         }
 
         [ExcelFunction(Description = "Modify an object")]
@@ -89,14 +111,14 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
             if (obj == null)
                 return "Object not found.";
-            System.Reflection.PropertyInfo[] list = obj.GetType().GetProperties();
-            for (int i = 0; i < list.Length; i++)
-                if (key.ToUpper() == list[i].Name.ToUpper())
+            System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
+            for (int i = 0; i < keyList.Length; i++)
+                if (key.ToUpper() == keyList[i].Name.ToUpper())
                 {
                     try
                     {
-                        list[i].SetValue(obj, value, null);
-                        return objName.ToUpper() + ":" + ++obj.counter;
+                        keyList[i].SetValue(obj, value, null);
+                        return objName + ":" + ++obj.counter;
                     }
                     catch (Exception e)
                     {

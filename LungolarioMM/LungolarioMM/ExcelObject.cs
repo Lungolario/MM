@@ -12,17 +12,18 @@ namespace MMA
             this.name = name;
             if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
             {
-                System.Reflection.PropertyInfo[] list = this.GetType().GetProperties();
+                System.Reflection.PropertyInfo[] keyList = this.GetType().GetProperties();
                 for (int i = 0; i < range.GetLength(0); i++)
-                    for (int j = 0; j < list.Length; j++)
-                        if (range[i, 0].ToString().ToUpper() == list[j].Name.ToUpper())
-                            list[j].SetValue(this, range[i, 1], null);
+                    for (int j = 0; j < keyList.Length; j++)
+                        if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
+                            keyList[j].SetValue(this, range[i, 1], null);
             }
         }
     }
     public class Model : ExcelObject
     {
-        public string modelname { get; set; }
+        public string modelName { get; set; }
+        public int extraResults { get; set; }
     }
     public class Curve : ExcelObject
     {
@@ -37,6 +38,21 @@ namespace MMA
     public class Results : ExcelObject
     {
         public double result { get; set; }
+    }
+    public class Security : ExcelObject
+    {
+        public string currency { get; set; }
+        public double start { get; set; }
+    }
+    public class Dictionary : ExcelObject
+    {
+        public string MODE { get; set; }
+        public string MODEL { get; set; }
+        public string CURVE { get; set; }
+        public string VOL { get; set; }
+        public string SECURITY { get; set; }
+        public string RESULTS { get; set; }
+
     }
     public class ExcelObjectHandler
     {

@@ -1,3 +1,3 @@
 <DnaLibrary Name="LungolarioMM" RunTimeVersion="v4.0">
-	<ExternalLibrary Path="LungolarioMM.dll" />
+	<ExternalLibrary Path="LungolarioMM.dll"  Pack="true"/>
 </DnaLibrary>
