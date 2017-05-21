@@ -20,7 +20,7 @@ namespace MMA
             {
                 return objName + ":" + objectHandler.CreateObject(objName, objType.ToUpper(), range);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return e.Message.ToString();
             }
@@ -29,20 +29,12 @@ namespace MMA
         [ExcelFunction(Description = "Display an object")]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
-            objName = Tools.StringTrim(objName);
             string[,] results;
-            //Get the object
-            ExcelObject dispObj = null;
-            foreach(var obj in objectHandler.objList)
-            {
-                if (obj.name.ToUpper() == objName.ToUpper() && obj.GetType().Name.ToUpper() == objType.ToUpper())
-                    dispObj = obj;
-            }
+            ExcelObject dispObj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
             if (dispObj == null)
             {
                 results = new string[1, 1];
                 results[0, 0] = "Object not found.";
-
             }
             else
             {
@@ -72,7 +64,7 @@ namespace MMA
             int i = objectHandler.objList.Count;
             results = new string[i, 2];
             int j = 0;
-            foreach(var obj in objectHandler.objList)
+            foreach (var obj in objectHandler.objList)
             {
                 results[j, 0] = obj.name;
                 results[j++, 1] = obj.GetType().Name.ToUpper();
@@ -83,7 +75,8 @@ namespace MMA
         [ExcelFunction(Description = "Get the instance of an object")]
         public static string mmGetObj(string objName, string objType)
         {
-            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            objName = Tools.StringTrim(objName);
+            ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj != null)
                 return objName.ToUpper() + ":" + obj.counter;
             else
@@ -105,7 +98,7 @@ namespace MMA
                         list[i].SetValue(obj, value, null);
                         return objName.ToUpper() + ":" + ++obj.counter;
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         return e.Message.ToString();
                     }

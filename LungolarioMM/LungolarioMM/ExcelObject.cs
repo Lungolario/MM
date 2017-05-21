@@ -15,7 +15,7 @@ namespace MMA
                 System.Reflection.PropertyInfo[] list = this.GetType().GetProperties();
                 for (int i = 0; i < range.GetLength(0); i++)
                     for (int j = 0; j < list.Length; j++)
-                        if (range[i,0].ToString().ToUpper() == list[j].Name.ToUpper())
+                        if (range[i, 0].ToString().ToUpper() == list[j].Name.ToUpper())
                             list[j].SetValue(this, range[i, 1], null);
             }
         }
@@ -53,7 +53,7 @@ namespace MMA
                 newObj.counter = 1 + existingObj.counter;
                 objList.Remove(existingObj);
             }
-        
+
             objList.Add(newObj);
             return newObj.counter;
         }
