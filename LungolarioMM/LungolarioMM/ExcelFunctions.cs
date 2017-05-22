@@ -1,6 +1,7 @@
 ﻿using System;
 using ExcelDna.Integration;
-
+using System.IO;
+using System.Collections.Generic;
 
 namespace MMA
 {
@@ -126,6 +127,56 @@ namespace MMA
                     }
                 }
             return "Object found, key not found.";
+        }
+        [ExcelFunction(Description = "Save Objects to Txt File")]
+        public static string mmSaveObjs(string objName, string objType, string location)
+        {
+            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            if (obj == null)
+                return "No objects found for this name/type.";
+            System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
+            string data = "";
+            data = obj.GetType().Name + "\r\n";
+            data +="name " + obj.name + "\r\n";
+            for (int i = 0; i < keyList.Length; i++)
+            {
+                data += keyList[i].Name + " " + keyList[i].GetValue(obj,null).ToString()+ "\r\n";
+            }
+            data += "\r\n";
+            try
+            {
+                if (File.Exists(location))
+                {
+                    File.AppendAllText(location, data);
+                }
+                else
+                {
+                    File.WriteAllText(location, data);
+                }
+                return "1 object saved";
+            }
+            catch(Exception e)
+            {
+                return e.Message.ToString();
+            }
+        }
+        [ExcelFunction(Description = "Save Objects to Txt File")]
+        public static List<ExcelObject> mmLoadObjs(string location)
+        {
+            if (!File.Exists(location))
+            {
+                return null;
+            }
+            else
+            {
+                List<ExcelObject> excelObjects=new List<ExcelObject>();
+                string []text = File.ReadAllLines(location);
+                foreach(string line in text)
+                {
+
+                }
+                return excelObjects;
+            }
         }
     }
 }
