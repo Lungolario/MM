@@ -2,17 +2,39 @@
 using ExcelDna.Integration;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Windows.Forms;
 namespace MMA
 {
-    public class ExcelFunctions
+    public class ExcelFunctions : IExcelAddIn
     {
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
-        ExcelFunctions()
+        private static DateTime EXPIRY_DATE = new DateTime(2018, 05, 15);
+        private static string expiredMessage = "Your Dll has Expired on " + EXPIRY_DATE.ToLongDateString();
+        private static string expiryTitle = "Dll Expired";
+        public void AutoOpen()
         {
+            CheckDLL();
             objectHandler = new ExcelObjectHandler();
         }
-
+        internal static bool Expired
+        {
+            get
+            {
+                if (EXPIRY_DATE < DateTime.Today)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+        public static void CheckDLL()
+        {
+            if (Expired)
+            {
+                MessageBox.Show(expiredMessage, expiryTitle);
+                throw new Exception(expiredMessage);
+            }
+        }
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
@@ -214,6 +236,11 @@ namespace MMA
                 }
                 return nameCountOfObjs;
             }
+        }
+
+        public void AutoClose()
+        {
+            throw new NotImplementedException();
         }
     }
 }
