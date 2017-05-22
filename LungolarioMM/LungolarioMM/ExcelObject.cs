@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MMA
 {
@@ -19,7 +20,8 @@ namespace MMA
                     for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
                         {
-                            keyList[j].SetValue(this, range[i, 1], null);
+                            var val = Convert.ChangeType(range[i, 1], keyList[j].PropertyType);
+                            keyList[j].SetValue(this, val, null);
                             break;
                         }
                     if (j == keyList.Length) throw new System.Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
