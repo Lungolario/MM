@@ -13,12 +13,20 @@ namespace LungolarioMM
         {
             this.name = name;
         }
+        public virtual string GetDNAObjactType()
+        {
+            return this.GetType().Name;
+        }
     }
     public class Model : DNAObject
     {
         public override void CreateObject(string name)
         {
             base.CreateObject(name);
+        }
+        public override string GetDNAObjactType()
+        {
+            return base.GetDNAObjactType();
         }
     }
     public class Curve : DNAObject
@@ -27,6 +35,10 @@ namespace LungolarioMM
         {
             base.CreateObject(name);
         }
+        public override string GetDNAObjactType()
+        {
+            return base.GetDNAObjactType();
+        }
     }
     public class Vol : DNAObject
     {
@@ -34,12 +46,20 @@ namespace LungolarioMM
         {
             base.CreateObject(name);
         }
+        public override string GetDNAObjactType()
+        {
+            return base.GetDNAObjactType();
+        }
     }
     public class Results : DNAObject
     {
         public override void CreateObject(string name)
         {
             base.CreateObject(name);
+        }
+        public override string GetDNAObjactType()
+        {
+            return base.GetDNAObjactType();
         }
     }
     public class MMObjectHandler

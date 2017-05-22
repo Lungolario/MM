@@ -1,6 +1,5 @@
 ﻿using System;
 using ExcelDna.Integration;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace LungolarioMM
 {
@@ -40,19 +39,18 @@ namespace LungolarioMM
             mmObjHandler.objs.Clear();
         }
 
-
-        [ExcelFunction(Description = "Delete all Objects")]
-        public static void mmListObj()
+        [ExcelFunction(Description = "List all Objects in x rows and 2 columns")]
+        public static object[,] mmListObj()
         {
-            //int i = 0;
-            //foreach (DNAObject obj in mmObjHandler.objs)
-            //{
-            //    ExcelReference cellOfName = new ExcelReference(mmObjHandler.startRow+i,mmObjHandler.startCol);
-            //    cellOfName.SetValue(obj.name);
-            //    ExcelReference cellOfType = new ExcelReference(mmObjHandler.startRow+i, mmObjHandler.startCol+1);
-            //    cellOfType.SetValue(obj.ReturnType());
-            //    i++;
-            //}
+            object[,] objects = new object[mmObjHandler.objs.Count,2];
+            int i = 0;
+            foreach (DNAObject obj in mmObjHandler.objs)
+            {
+                objects[i, 0] = obj.name + ":" + obj.counter;
+                objects[i, 1] = obj.GetDNAObjactType();
+                i++;
+            }
+            return objects;
         }
     }
 }
