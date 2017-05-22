@@ -14,9 +14,16 @@ namespace MMA
             {
                 System.Reflection.PropertyInfo[] keyList = this.GetType().GetProperties();
                 for (int i = 0; i < range.GetLength(0); i++)
-                    for (int j = 0; j < keyList.Length; j++)
+                {
+                    int j;
+                    for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
+                        {
                             keyList[j].SetValue(this, range[i, 1], null);
+                            break;
+                        }
+                    if (j == keyList.Length) throw new System.Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
+                }
             }
         }
     }
@@ -76,6 +83,7 @@ namespace MMA
 
         public ExcelObject GetObject(string name, string type)
         {
+            name = Tools.StringTrim(name);
             foreach (var existingObj in objList)
                 if ((existingObj.name == name) && (existingObj.GetType().ToString().ToUpper() == "MMA." + type.ToUpper()))
                     return existingObj;

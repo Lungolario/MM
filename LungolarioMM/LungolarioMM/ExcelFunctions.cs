@@ -19,7 +19,7 @@ namespace MMA
             objName = Tools.StringTrim(objName);
             try
             {
-                return objName + ":" + objectHandler.CreateObject(objName, objType.ToUpper(), range);
+                return objName + ":" + objectHandler.CreateObject(objName, objType, range);
             }
             catch (Exception e)
             {
@@ -31,7 +31,7 @@ namespace MMA
         public static object[,] mmDisplayObj(string objName, string objType)
         {
             string[,] results;
-            ExcelObject dispObj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            ExcelObject dispObj = objectHandler.GetObject(objName, objType);
             if (dispObj == null)
             {
                 results = new string[1, 1];
@@ -61,9 +61,7 @@ namespace MMA
         [ExcelFunction(Description = "List all objects")]
         public static object[,] mmListObjs()
         {
-            string[,] results;
-            int i = objectHandler.objList.Count;
-            results = new string[i, 2];
+            string[,] results = new string[objectHandler.objList.Count, 2];
             int j = 0;
             foreach (var obj in objectHandler.objList)
             {
@@ -76,10 +74,9 @@ namespace MMA
         [ExcelFunction(Description = "Get the instance of an object")]
         public static string mmGetObj(string objName, string objType)
         {
-            objName = Tools.StringTrim(objName);
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj != null)
-                return objName + ":" + obj.counter;
+                return obj.name + ":" + obj.counter;
             else
                 return "Object not found.";
         }
@@ -87,7 +84,7 @@ namespace MMA
         [ExcelFunction(Description = "Get the value of a key of an object")]
         public static string mmGetObjInfo(string objName, string objType, string key)
         {
-            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
             System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
@@ -109,7 +106,7 @@ namespace MMA
         [ExcelFunction(Description = "Modify an object")]
         public static string mmModifyObj(string objName, string objType, string key, object value)
         {
-            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
             System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
@@ -119,7 +116,7 @@ namespace MMA
                     try
                     {
                         keyList[i].SetValue(obj, value, null);
-                        return objName + ":" + ++obj.counter;
+                        return obj.name + ":" + ++obj.counter;
                     }
                     catch (Exception e)
                     {
@@ -128,10 +125,11 @@ namespace MMA
                 }
             return "Object found, key not found.";
         }
+
         [ExcelFunction(Description = "Save Objects to Txt File")]
         public static string mmSaveObjs(string objName, string objType, string location)
         {
-            ExcelObject obj = objectHandler.GetObject(Tools.StringTrim(objName), objType);
+            ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "No objects found for this name/type.";
             System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
