@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MMA
 {
@@ -16,7 +17,11 @@ namespace MMA
                 for (int i = 0; i < range.GetLength(0); i++)
                     for (int j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
-                            keyList[j].SetValue(this, range[i, 1], null);
+                        {
+                            var val = Convert.ChangeType(range[i, 1], keyList[j].PropertyType);
+                            keyList[j].SetValue(this, val, null);
+                            
+                        }
             }
         }
     }

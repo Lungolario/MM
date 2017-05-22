@@ -160,8 +160,8 @@ namespace MMA
                 return e.Message.ToString();
             }
         }
-        [ExcelFunction(Description = "Save Objects to Txt File")]
-        public static List<ExcelObject> mmLoadObjs(string location)
+        [ExcelFunction(Description = "Load all Objects from Txt File")]
+        public static object[,] mmLoadObjs(string location)
         {
             if (!File.Exists(location))
             {
@@ -169,13 +169,52 @@ namespace MMA
             }
             else
             {
-                List<ExcelObject> excelObjects=new List<ExcelObject>();
-                string []text = File.ReadAllLines(location);
-                foreach(string line in text)
+                List<object> objsLoadedWithNameCount = new List<object>();
+                string[] text = File.ReadAllLines(location);
+                string type, name;
+                type = name = "";
+                List<object[]> list = new List<object[]>();
+                int counter = 0;
+                foreach (string line in text)
                 {
+                    if (counter % 5 == 0)
+                        type = line;
+                    else if (counter % 5 == 1)
+                    {
+                        string[] str = line.Split(' ');
+                        name = str[1];
+                    }
+                    else if (line == "")
+                    {
 
+                        object[,] range = new object[list.Count, 2];
+                        for (int rangeCounter = 0; rangeCounter < list.Count; rangeCounter++)
+                        {
+                            range[rangeCounter, 0] = list[rangeCounter][0];
+                            range[rangeCounter, 1] = list[rangeCounter][1];
+                        }
+                        objsLoadedWithNameCount.Add(mmCreateObj(name, type, range));
+                        name = "";
+                        type = "";
+                        list.Clear();
+                    }
+                    else
+                    {
+                        string[] str = line.Split(' ');
+                        object[] property = new string[2];
+                        property[0] = (object)str[0];
+                        property[1] = (object)str[1];
+                        list.Add(property);
+                    }
+                    counter++;
                 }
-                return excelObjects;
+                string[,] nameCountOfObjs = new string[objsLoadedWithNameCount.Count, 1];
+                int ctr = 0;
+                foreach(object obj in objsLoadedWithNameCount)
+                {
+                    nameCountOfObjs[ctr++, 0] = obj.ToString();
+                }
+                return nameCountOfObjs;
             }
         }
     }

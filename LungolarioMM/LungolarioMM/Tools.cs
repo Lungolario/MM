@@ -1,3 +1,5 @@
+using System;
+
 namespace MMA
 {
     public static class Tools
@@ -8,6 +10,10 @@ namespace MMA
             if (i > -1)
                 return name.Substring(0, i);
             return name;
+        }
+        public static T ConvertToType<T>(object input)
+        {
+            return (T)Convert.ChangeType(input, typeof(T));
         }
     }
 
