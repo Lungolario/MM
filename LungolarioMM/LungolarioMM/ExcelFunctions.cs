@@ -25,10 +25,9 @@ namespace MMA
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
-            objName = Tools.StringTrim(objName);
             try
             {
-                return objName + ":" + objectHandler.CreateObject(objName, objType, range);
+                return objectHandler.CreateObject(objName, objType, range).GetNameCounter();
             }
             catch (Exception e)
             {
@@ -84,10 +83,9 @@ namespace MMA
         public static string mmGetObj(string objName, string objType)
         {
             ExcelObject obj = objectHandler.GetObject(objName, objType);
-            if (obj != null)
-                return obj.name + ":" + obj.counter;
-            else
+            if (obj == null)
                 return "Object not found.";
+            return obj.GetNameCounter();
         }
 
         [ExcelFunction(Description = "Get the value of a key of an object")]
@@ -125,7 +123,7 @@ namespace MMA
                     try
                     {
                         keyList[i].SetValue(obj, value, null);
-                        return obj.name + ":" + ++obj.counter;
+                        return obj.IncreaseCounter().GetNameCounter();
                     }
                     catch (Exception e)
                     {

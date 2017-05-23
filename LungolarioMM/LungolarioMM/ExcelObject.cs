@@ -6,8 +6,8 @@ namespace MMA
 {
     public abstract class ExcelObject
     {
-        public string name;
-        public int counter = 0;
+        public string name { get; private set; }
+        private int counter = 0;
         public virtual void CreateObject(string name, object[,] range)
         {
             this.name = name;
@@ -24,9 +24,24 @@ namespace MMA
                             keyList[j].SetValue(this, val, null);
                             break;
                         }
-                    if (j == keyList.Length) throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
+                    if (j == keyList.Length)
+                        throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
                 }
             }
+        }
+        public ExcelObject IncreaseCounter()
+        {
+            counter++;
+            return this;
+        }
+        public ExcelObject TakeOverCounter(ExcelObject oldObj)
+        {
+            counter = oldObj.counter + 1;
+            return this;
+        }
+        public string GetNameCounter()
+        {
+            return this.name + ":" + this.counter;
         }
     }
     public class Model : ExcelObject
@@ -38,6 +53,7 @@ namespace MMA
     {
         public string currency { get; set; }
         public double rate { get; set; }
+        public MatrixH rates { get; set; }
     }
     public class Vol : ExcelObject
     {
@@ -66,8 +82,9 @@ namespace MMA
     public class ExcelObjectHandler
     {
         public List<ExcelObject> objList = new List<ExcelObject>();
-        public int CreateObject(string name, string type, object[,] range)
+        public ExcelObject CreateObject(string name, string type, object[,] range)
         {
+            name = Tools.StringTrim(name);
             ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType("MMA." + type, true, true));
             newObj.CreateObject(name, range);
 
@@ -75,12 +92,12 @@ namespace MMA
             ExcelObject existingObj = GetObject(name, type);
             if (existingObj != null)
             {
-                newObj.counter = 1 + existingObj.counter;
+                newObj.TakeOverCounter(existingObj);
                 objList.Remove(existingObj);
             }
 
             objList.Add(newObj);
-            return newObj.counter;
+            return newObj;
         }
 
         public ExcelObject GetObject(string name, string type)
