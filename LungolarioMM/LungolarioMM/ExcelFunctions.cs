@@ -2,39 +2,26 @@
 using ExcelDna.Integration;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Windows.Forms;
+
 namespace MMA
 {
     public class ExcelFunctions : IExcelAddIn
     {
-        static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
         private static DateTime EXPIRY_DATE = new DateTime(2018, 05, 15);
-        private static string expiredMessage = "Your Dll has Expired on " + EXPIRY_DATE.ToLongDateString();
-        private static string expiryTitle = "Dll Expired";
         public void AutoOpen()
         {
-            CheckDLL();
-            objectHandler = new ExcelObjectHandler();
-        }
-        internal static bool Expired
-        {
-            get
+            if (EXPIRY_DATE < DateTime.Today)
             {
-                if (EXPIRY_DATE < DateTime.Today)
-                {
-                    return true;
-                }
-                return false;
+                MessageBox.Show("The XLL has expired on " + EXPIRY_DATE.ToLongDateString(), "XLL expired");
+                throw new Exception("XLL expired");
             }
         }
-        public static void CheckDLL()
-        {
-            if (Expired)
-            {
-                MessageBox.Show(expiredMessage, expiryTitle);
-                throw new Exception(expiredMessage);
-            }
-        }
+        public void AutoClose() {}
+
+        static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
+
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
@@ -61,7 +48,7 @@ namespace MMA
             }
             else
             {
-                System.Reflection.PropertyInfo[] keyList = dispObj.GetType().GetProperties();
+                PropertyInfo[] keyList = dispObj.GetType().GetProperties();
                 results = new string[keyList.Length, 2];
                 for (int i = 0; i < keyList.Length; i++)
                 {
@@ -109,7 +96,7 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
-            System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
+            PropertyInfo[] keyList = obj.GetType().GetProperties();
             for (int i = 0; i < keyList.Length; i++)
                 if (key.ToUpper() == keyList[i].Name.ToUpper())
                 {
@@ -131,7 +118,7 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
-            System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
+            PropertyInfo[] keyList = obj.GetType().GetProperties();
             for (int i = 0; i < keyList.Length; i++)
                 if (key.ToUpper() == keyList[i].Name.ToUpper())
                 {
@@ -154,7 +141,7 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "No objects found for this name/type.";
-            System.Reflection.PropertyInfo[] keyList = obj.GetType().GetProperties();
+            PropertyInfo[] keyList = obj.GetType().GetProperties();
             string data = "";
             data = obj.GetType().Name + "\r\n";
             data +="name " + obj.name + "\r\n";
@@ -236,11 +223,6 @@ namespace MMA
                 }
                 return nameCountOfObjs;
             }
-        }
-
-        public void AutoClose()
-        {
-            throw new NotImplementedException();
         }
     }
 }

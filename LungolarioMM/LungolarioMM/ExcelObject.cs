@@ -13,7 +13,7 @@ namespace MMA
             this.name = name;
             if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
             {
-                System.Reflection.PropertyInfo[] keyList = this.GetType().GetProperties();
+                PropertyInfo[] keyList = this.GetType().GetProperties();
                 for (int i = 0; i < range.GetLength(0); i++)
                 {
                     int j;
@@ -24,7 +24,7 @@ namespace MMA
                             keyList[j].SetValue(this, val, null);
                             break;
                         }
-                    if (j == keyList.Length) throw new System.Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
+                    if (j == keyList.Length) throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
                 }
             }
         }
