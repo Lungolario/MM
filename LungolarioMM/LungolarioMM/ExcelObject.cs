@@ -29,14 +29,19 @@ namespace MMA
                 }
             }
         }
+        public ExcelObject TakeOverOldObject(ExcelObjectHandler objHandler)
+        {
+            ExcelObject existingObj = objHandler.GetObject(this.name, this.GetType().Name);
+            if (existingObj != null)
+            {
+                this.counter = existingObj.counter + 1;
+                objHandler.objList.Remove(existingObj);
+            }
+            return this;
+        }
         public ExcelObject IncreaseCounter()
         {
             counter++;
-            return this;
-        }
-        public ExcelObject TakeOverCounter(ExcelObject oldObj)
-        {
-            counter = oldObj.counter + 1;
             return this;
         }
         public string GetNameCounter()
@@ -84,19 +89,9 @@ namespace MMA
         public List<ExcelObject> objList = new List<ExcelObject>();
         public ExcelObject CreateObject(string name, string type, object[,] range)
         {
-            name = Tools.StringTrim(name);
             ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType("MMA." + type, true, true));
-            newObj.CreateObject(name, range);
-
-            //handle if object with name and type already existed
-            ExcelObject existingObj = GetObject(name, type);
-            if (existingObj != null)
-            {
-                newObj.TakeOverCounter(existingObj);
-                objList.Remove(existingObj);
-            }
-
-            objList.Add(newObj);
+            newObj.CreateObject(Tools.StringTrim(name), range);
+            objList.Add(newObj.TakeOverOldObject(this));
             return newObj;
         }
 
