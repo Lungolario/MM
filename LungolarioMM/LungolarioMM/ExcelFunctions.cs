@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MMA
 {
@@ -19,6 +21,7 @@ namespace MMA
             }
         }
         public void AutoClose() {}
+
 
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
 
@@ -174,53 +177,39 @@ namespace MMA
             }
             else
             {
-                List<object> objsLoadedWithNameCount = new List<object>();
                 string[] text = File.ReadAllLines(location);
-                string type, name;
-                type = name = "";
-                List<object[]> list = new List<object[]>();
-                int counter = 0;
-                foreach (string line in text)
+                int count = text.ToList().Where(item => item == "").Count();
+                object[,] objNameAndCount = new object[count, 1];
+                List<string> rangeValues = new List<string>();
+                ExcelObject obj = null;
+                int counterForObjCount = 0;
+                for (int counter = 0; counter < text.Length; counter++)
                 {
                     if (counter % 5 == 0)
-                        type = line;
-                    else if (counter % 5 == 1)
                     {
-                        string[] str = line.Split(' ');
-                        name = str[1];
-                    }
-                    else if (line == "")
-                    {
-
-                        object[,] range = new object[list.Count, 2];
-                        for (int rangeCounter = 0; rangeCounter < list.Count; rangeCounter++)
+                        InitializeExcelObject(ref obj, text[counter]);
+                        int indexOfObjEnd = Array.IndexOf(text, "", counter++);
+                        string name = text[counter ++].Replace("name ","");
+                        rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
+                        object[,] range = new object[rangeValues.Count,2];
+                        for(int i=0;i< rangeValues.Count;i++)
                         {
-                            range[rangeCounter, 0] = list[rangeCounter][0];
-                            range[rangeCounter, 1] = list[rangeCounter][1];
+                            string[] str = rangeValues[i].Split(' ');
+                            range[i, 0] = str[0];
+                            range[i, 1] = str[1];
                         }
-                        objsLoadedWithNameCount.Add(mmCreateObj(name, type, range));
-                        name = "";
-                        type = "";
-                        list.Clear();
+                        obj.CreateObject(name, range);
+                        counter = indexOfObjEnd;
+                        objNameAndCount[counterForObjCount, 0] = obj.GetNameCounter();
+                        counterForObjCount++;
                     }
-                    else
-                    {
-                        string[] str = line.Split(' ');
-                        object[] property = new string[2];
-                        property[0] = (object)str[0];
-                        property[1] = (object)str[1];
-                        list.Add(property);
-                    }
-                    counter++;
                 }
-                string[,] nameCountOfObjs = new string[objsLoadedWithNameCount.Count, 1];
-                int ctr = 0;
-                foreach(object obj in objsLoadedWithNameCount)
-                {
-                    nameCountOfObjs[ctr++, 0] = obj.ToString();
-                }
-                return nameCountOfObjs;
+                return objNameAndCount;
             }
+        }
+        public static void InitializeExcelObject(ref ExcelObject obj, string type)
+        {
+            obj = (ExcelObject)Activator.CreateInstance(Type.GetType("MMA." + type, true, true));
         }
     }
 }

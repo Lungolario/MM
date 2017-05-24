@@ -11,9 +11,11 @@ namespace MMA
                 return name.Substring(0, i);
             return name;
         }
-        public static T ConvertToType<T>(object input)
+        public static T[] SubArray<T>(this T[] data, int index, int length)
         {
-            return (T)Convert.ChangeType(input, typeof(T));
+            T[] result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
         }
     }
 
