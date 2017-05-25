@@ -61,10 +61,16 @@ namespace MMA
         }
 
         [ExcelFunction(Description = "Delete all objects")]
-        public static string mmDeleteObjs()
+        public static string mmDeleteObjs(string type, string name)
         {
             int i = objectHandler.objList.Count;
-            objectHandler.objList.Clear();
+            if (type != "" && name != "")
+                objectHandler.objList.RemoveAll(item => item.name.ToUpper().Equals(name.ToUpper()) && item.GetType().ToString().ToUpper() == "MMA." + type.ToUpper());
+            else if (type != "")
+                objectHandler.objList.RemoveAll(item=> item.GetType().ToString().ToUpper() == "MMA." + type.ToUpper());
+            else
+                objectHandler.objList.Clear();
+            i -= objectHandler.objList.Count;
             return "Deleted " + i + " object(s).";
         }
 
@@ -180,13 +186,12 @@ namespace MMA
                 int count = text.ToList().Where(item => item == "").Count();
                 object[,] objNameAndCount = new object[count, 1];
                 List<string> rangeValues = new List<string>();
-                ExcelObject obj = null;
                 int counterForObjCount = 0;
                 for (int counter = 0; counter < text.Length; counter++)
                 {
                     if (counter % 5 == 0)
                     {
-                        InitializeExcelObject(ref obj, text[counter]);
+                        string type = text[counter];
                         int indexOfObjEnd = Array.IndexOf(text, "", counter++);
                         string name = text[counter ++].Replace("name ","");
                         rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
@@ -197,18 +202,13 @@ namespace MMA
                             range[i, 0] = str[0];
                             range[i, 1] = str[1];
                         }
-                        obj.CreateObject(name, range);
+                        objNameAndCount[counterForObjCount, 0] = objectHandler.CreateObject(name, type, range).GetNameCounter();
                         counter = indexOfObjEnd;
-                        objNameAndCount[counterForObjCount, 0] = obj.GetNameCounter();
                         counterForObjCount++;
                     }
                 }
                 return objNameAndCount;
             }
-        }
-        public static void InitializeExcelObject(ref ExcelObject obj, string type)
-        {
-            obj = (ExcelObject)Activator.CreateInstance(Type.GetType("MMA." + type, true, true));
         }
     }
 }
