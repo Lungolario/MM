@@ -65,9 +65,9 @@ namespace MMA
         {
             int i = objectHandler.objList.Count;
             if (type != "" && name != "")
-                objectHandler.objList.RemoveAll(item => item.name.ToUpper().Equals(name.ToUpper()) && item.GetType().ToString().ToUpper() == "MMA." + type.ToUpper());
+                objectHandler.objList.RemoveAll(item => item.name.ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
             else if (type != "")
-                objectHandler.objList.RemoveAll(item=> item.GetType().ToString().ToUpper() == "MMA." + type.ToUpper());
+                objectHandler.objList.RemoveAll(item=> item.GetType().Name.ToUpper() == type.ToUpper());
             else
                 objectHandler.objList.Clear();
             i -= objectHandler.objList.Count;

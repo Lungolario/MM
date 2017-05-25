@@ -89,7 +89,7 @@ namespace MMA
         public List<ExcelObject> objList = new List<ExcelObject>();
         public ExcelObject CreateObject(string name, string type, object[,] range)
         {
-            ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType("MMA." + type, true, true));
+            ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType(typeof(ExcelObject).Namespace + "." + type, true, true));
             newObj.CreateObject(Tools.StringTrim(name), range);
             objList.Add(newObj.TakeOverOldObject(this));
             return newObj;
@@ -99,7 +99,7 @@ namespace MMA
         {
             name = Tools.StringTrim(name);
             foreach (var existingObj in objList)
-                if ((existingObj.name == name) && (existingObj.GetType().ToString().ToUpper() == "MMA." + type.ToUpper()))
+                if ((existingObj.name == name) && (existingObj.GetType().Name.ToUpper() == type.ToUpper()))
                     return existingObj;
             return null;
         }
