@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ExcelDna.Integration;
 
 namespace MMA
 {
@@ -20,15 +21,15 @@ namespace MMA
                     for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
                         {
-                            if (typeof(Matrix).IsAssignableFrom(keyList[j].PropertyType))
+                            if (typeof(Mat).IsAssignableFrom(keyList[j].PropertyType))
                             {
                                 int countRows, countColumns;
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
-                                    if (range[countRows + i, 0].GetType() != typeof(ExcelDna.Integration.ExcelEmpty)) break;
+                                    if (range[countRows + i, 0].GetType() != typeof(ExcelEmpty)) break;
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
-                                    if (range[i + 1, countColumns].GetType() == typeof(ExcelDna.Integration.ExcelEmpty)) break;
+                                    if (range[i + 1, countColumns].GetType() == typeof(ExcelEmpty)) break;
 
-                                Matrix mat = (Matrix)Activator.CreateInstance(keyList[j].PropertyType);
+                                Mat mat = (Mat)Activator.CreateInstance(keyList[j].PropertyType);
                                 mat.CreateMatrix(range, i + 1, countRows - 1, 1, countColumns - 1);
                                 keyList[j].SetValue(this, mat, null);
                                 i += countRows - 1;
@@ -41,7 +42,7 @@ namespace MMA
                             break;
                         }
                     if (j == keyList.Length)
-                        throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().ToString());
+                        throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().Name);
                 }
             }
         }
@@ -74,7 +75,7 @@ namespace MMA
     {
         public string currency { get; set; }
         public double rate { get; set; }
-        public MatrixH rates { get; set; }
+        public MatrixH<double, string> rates { get; set; }
     }
     public class Vol : ExcelObject
     {

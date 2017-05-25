@@ -53,7 +53,7 @@ namespace MMA
                 for (int i = 0; i < keyList.Length; i++)
                 {
                     results[i, 0] = keyList[i].Name;
-                    if (typeof(Matrix).IsAssignableFrom(keyList[i].PropertyType))
+                    if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
                         results[i, 1] = "Tables cannot be displayed yet";
                     else
                         results[i, 1] = keyList[i].GetValue(dispObj, null).ToString();

@@ -19,44 +19,76 @@ namespace MMA
         }
     }
 
-    public class Matrix
+    //class to simplify code in ExcelObject.CreateObject
+    public abstract class Mat
     {
-        public virtual void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
+        public abstract void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols);
+    }
+    public class Matrix<T> : Mat
+    {
+        public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
-            content = new object[nRows, nCols];
+            content = new T[nRows, nCols];
             for (int iRow = 0; iRow < nRows; iRow++)
                 for (int iCol = 0; iCol < nCols; iCol++)
-                    content[iRow, iCol] = range[rowStart + iRow, colStart + iCol];
+                {
+                    try
+                    {
+                        content[iRow, iCol] = (T)range[rowStart + iRow, colStart + iCol];
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(e.Message.ToString() + " Error in cell (" + (rowStart+iRow) + "," + (colStart + iCol) + ") of range.");
+                    }
+                }
         }
-        public object[,] content;
+        public T[,] content;
         public bool hasHeader() { return false; }
         public bool hasRowHeader() { return false; }
         public int contentWidth() { return content.GetLength(1); }
         public int contentHeight() { return content.GetLength(0); }
     }
-    public class MatrixH : Matrix
+    public class MatrixH<T, HR> : Matrix<T>
     {
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
             base.CreateMatrix(range, rowStart + 1, nRows - 1, colStart, nCols);
-            columnHeaders = new object[nCols];
+            columnHeaders = new HR[nCols];
             for (int iCol = 0; iCol < nCols; iCol++)
-                columnHeaders[iCol] = range[rowStart, colStart + iCol];
+            {
+                try
+                {
+                    columnHeaders[iCol] = (HR)range[rowStart, colStart + iCol];
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message.ToString() + " Error in cell (" + rowStart + "," + (colStart + iCol) + ") of range.");
+                }
+            }
         }
-        public object[] columnHeaders;
+        public HR[] columnHeaders;
         public new bool hasHeader() { return true; }
     }
-    public class MatrixHR : MatrixH
+    public class MatrixHR<T, HR> : MatrixH<T, HR>
     {
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
             base.CreateMatrix(range, rowStart, nRows, colStart + 1, nCols - 1);
-            rowHeaders = new object[nRows - 1];
+            rowHeaders = new HR[nRows - 1];
             for (int iRow = 1; iRow < nRows; iRow++)
-                rowHeaders[iRow] = range[rowStart + iRow, colStart];
+            {
+                try
+                {
+                    rowHeaders[iRow] = (HR)range[rowStart + iRow, colStart];
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message.ToString() + " Error in cell (" + (rowStart + iRow) + "," + colStart + ") of range.");
+                }
+            }
             upperLeft = range[rowStart, colStart].ToString();
         }
-        public object[] rowHeaders;
+        public HR[] rowHeaders;
         public string upperLeft;
         public new bool hasRowHeader() { return true; }
     }
