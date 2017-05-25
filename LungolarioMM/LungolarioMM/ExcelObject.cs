@@ -26,10 +26,12 @@ namespace MMA
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
                                     if (range[countRows + i, 0].GetType() != typeof(ExcelDna.Integration.ExcelEmpty)) break;
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
-                                    if (range[i + 1, countColumns].ToString() == "") break;
-                                i += countRows - 1;
+                                    if (range[i + 1, countColumns].GetType() == typeof(ExcelDna.Integration.ExcelEmpty)) break;
+
                                 Matrix mat = (Matrix)Activator.CreateInstance(keyList[j].PropertyType);
+                                mat.CreateMatrix(range, i + 1, countRows - 1, 1, countColumns - 1);
                                 keyList[j].SetValue(this, mat, null);
+                                i += countRows - 1;
                             }
                             else
                             {
