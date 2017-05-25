@@ -20,8 +20,22 @@ namespace MMA
                     for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
                         {
-                            var val = Convert.ChangeType(range[i, 1], keyList[j].PropertyType);
-                            keyList[j].SetValue(this, val, null);
+                            if (typeof(Matrix).IsAssignableFrom(keyList[j].PropertyType))
+                            {
+                                int countRows, countColumns;
+                                for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
+                                    if (range[countRows + i, 0].GetType() != typeof(ExcelDna.Integration.ExcelEmpty)) break;
+                                for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
+                                    if (range[i + 1, countColumns].ToString() == "") break;
+                                i += countRows - 1;
+                                Matrix mat = (Matrix)Activator.CreateInstance(keyList[j].PropertyType);
+                                keyList[j].SetValue(this, mat, null);
+                            }
+                            else
+                            {
+                                var val = Convert.ChangeType(range[i, 1], keyList[j].PropertyType);
+                                keyList[j].SetValue(this, val, null);
+                            }
                             break;
                         }
                     if (j == keyList.Length)
@@ -82,7 +96,6 @@ namespace MMA
         public string VOL { get; set; }
         public string SECURITY { get; set; }
         public string RESULTS { get; set; }
-
     }
     public class ExcelObjectHandler
     {
@@ -97,11 +110,7 @@ namespace MMA
 
         public ExcelObject GetObject(string name, string type)
         {
-            name = Tools.StringTrim(name);
-            foreach (var existingObj in objList)
-                if ((existingObj.name == name) && (existingObj.GetType().Name.ToUpper() == type.ToUpper()))
-                    return existingObj;
-            return null;
+            return objList.Find(item => item.name.ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
         }
     }
 }

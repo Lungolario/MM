@@ -21,7 +21,6 @@ namespace MMA
         }
         public void AutoClose() {}
 
-
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
 
         [ExcelFunction(Description = "Creates an object with name and type")]
@@ -54,14 +53,17 @@ namespace MMA
                 for (int i = 0; i < keyList.Length; i++)
                 {
                     results[i, 0] = keyList[i].Name;
-                    results[i, 1] = keyList[i].GetValue(dispObj, null).ToString();
+                    if (typeof(Matrix).IsAssignableFrom(keyList[i].PropertyType))
+                        results[i, 1] = "Tables cannot be displayed yet";
+                    else
+                        results[i, 1] = keyList[i].GetValue(dispObj, null).ToString();
                 }
             }
             return results;
         }
 
-        [ExcelFunction(Description = "Delete all objects")]
-        public static string mmDeleteObjs(string type, string name)
+        [ExcelFunction(Description = "Delete objects")]
+        public static string mmDeleteObjs(string name, string type)
         {
             int i = objectHandler.objList.Count;
             if (type != "" && name != "")
@@ -173,6 +175,7 @@ namespace MMA
                 return e.Message.ToString();
             }
         }
+
         [ExcelFunction(Description = "Load all Objects from Txt File")]
         public static object[,] mmLoadObjs(string location)
         {
