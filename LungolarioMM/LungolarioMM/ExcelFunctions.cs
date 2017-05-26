@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Linq;
+using System.Collections;
 
 namespace MMA
 {
@@ -40,6 +41,7 @@ namespace MMA
         public static object[,] mmDisplayObj(string objName, string objType)
         {
             string[,] results;
+            string[,] matrix;
             ExcelObject dispObj = objectHandler.GetObject(objName, objType);
             if (dispObj == null)
             {
@@ -50,13 +52,50 @@ namespace MMA
             {
                 PropertyInfo[] keyList = dispObj.GetType().GetProperties();
                 results = new string[keyList.Length, 2];
-                for (int i = 0; i < keyList.Length; i++)
+
+                for (int i = 0,j=0; i < keyList.Length; i++)
                 {
-                    results[i, 0] = keyList[i].Name;
                     if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
-                        results[i, 1] = "Tables cannot be displayed yet";
+                    {
+                        results[i, 0] = keyList[i].Name;
+                        results[i, 1] = "Tables not implemented yet.";
+                        Mat ob = keyList[i].GetValue(dispObj, null) as Mat;
+                        Mat mat = (Mat)Activator.CreateInstance(keyList[i].PropertyType);
+                        mat = ob;
+                        FieldInfo[] fi = mat.GetType().GetFields();
+                        List <Array> data = new List<Array>();
+                        //matrix = new string[fi[1].GetValue(mat).,];
+                        foreach(FieldInfo f in fi)
+                        {
+                            Array vals = (Array) f.GetValue(mat);
+                            data.Add(vals);
+                                
+                        }
+                        int totalRows, totalCols;
+                        totalCols = data[0].Length;
+                        totalRows = data[1].Length/totalCols+1;
+                        matrix = new string[totalRows, totalCols];
+                        int rowId, colId;
+                        rowId = colId = 0;
+                        foreach(Array arr in data)
+                        {
+                            foreach (var val in arr)
+                            {
+                                matrix[rowId, colId] = val.ToString();
+                                colId++;
+                                if (colId == totalCols)
+                                {
+                                    colId = 0;
+                                    rowId++;
+                                }
+                            }
+                        }                   
+                    }
                     else
+                    {
+                        results[i, 0] = keyList[i].Name;
                         results[i, 1] = keyList[i].GetValue(dispObj, null).ToString();
+                    }
                 }
             }
             return results;
