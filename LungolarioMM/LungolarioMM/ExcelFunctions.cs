@@ -144,30 +144,29 @@ namespace MMA
         }
 
         [ExcelFunction(Description = "Save Objects to Txt File")]
-        public static string mmSaveObjs(string objName, string objType, string location)
+        public static string mmSaveObjs(object[,] objName, object[,] objType, string location)
         {
-            ExcelObject obj = objectHandler.GetObject(objName, objType);
-            if (obj == null)
-                return "No objects found for this name/type.";
-            PropertyInfo[] keyList = obj.GetType().GetProperties();
             string data = "";
-            data = obj.GetType().Name + "\r\n";
-            data +="name " + obj.name + "\r\n";
-            for (int i = 0; i < keyList.Length; i++)
+            ExcelObject obj;
+            for (int ctr=0;ctr<objName.Length;ctr++)
             {
-                data += keyList[i].Name + " " + keyList[i].GetValue(obj,null).ToString()+ "\r\n";
+
+                obj = objectHandler.GetObject(objName[ctr, 0].ToString(), objType[ctr, 0].ToString());
+                if (obj != null)
+                {
+                    PropertyInfo[] keyList = obj.GetType().GetProperties().Where(p=>p.DeclaringType== obj.GetType()).ToArray();
+                    data += obj.GetType().Name + "\r\n";
+                    data += "name " + obj.name + "\r\n";
+                    for (int i = 0; i < keyList.Length; i++)
+                    {
+                        data += keyList[i].Name + " " + keyList[i].GetValue(obj, null).ToString() + "\r\n";
+                    }
+                    data += "\r\n";
+                }
             }
-            data += "\r\n";
             try
             {
-                if (File.Exists(location))
-                {
-                    File.AppendAllText(location, data);
-                }
-                else
-                {
-                    File.WriteAllText(location, data);
-                }
+                File.WriteAllText(location, data);
                 return "1 object saved";
             }
             catch(Exception e)
