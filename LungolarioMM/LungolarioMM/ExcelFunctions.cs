@@ -20,7 +20,7 @@ namespace MMA
                 throw new Exception("XLL expired");
             }
         }
-        public void AutoClose() {}
+        public void AutoClose() { }
 
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
 
@@ -53,7 +53,7 @@ namespace MMA
                 PropertyInfo[] keyList = dispObj.GetType().GetProperties();
                 results = new string[keyList.Length, 2];
 
-                for (int i = 0,j=0; i < keyList.Length; i++)
+                for (int i = 0, j = 0; i < keyList.Length; i++)
                 {
                     if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
                     {
@@ -63,21 +63,21 @@ namespace MMA
                         Mat mat = (Mat)Activator.CreateInstance(keyList[i].PropertyType);
                         mat = ob;
                         FieldInfo[] fi = mat.GetType().GetFields();
-                        List <Array> data = new List<Array>();
+                        List<Array> data = new List<Array>();
                         //matrix = new string[fi[1].GetValue(mat).,];
-                        foreach(FieldInfo f in fi)
+                        foreach (FieldInfo f in fi)
                         {
-                            Array vals = (Array) f.GetValue(mat);
+                            Array vals = (Array)f.GetValue(mat);
                             data.Add(vals);
-                                
+
                         }
                         int totalRows, totalCols;
                         totalCols = data[0].Length;
-                        totalRows = data[1].Length/totalCols+1;
+                        totalRows = data[1].Length / totalCols + 1;
                         matrix = new string[totalRows, totalCols];
                         int rowId, colId;
                         rowId = colId = 0;
-                        foreach(Array arr in data)
+                        foreach (Array arr in data)
                         {
                             foreach (var val in arr)
                             {
@@ -89,7 +89,7 @@ namespace MMA
                                     rowId++;
                                 }
                             }
-                        }                   
+                        }
                     }
                     else
                     {
@@ -108,7 +108,7 @@ namespace MMA
             if (type != "" && name != "")
                 objectHandler.objList.RemoveAll(item => item.name.ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
             else if (type != "")
-                objectHandler.objList.RemoveAll(item=> item.GetType().Name.ToUpper() == type.ToUpper());
+                objectHandler.objList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
                 objectHandler.objList.Clear();
             i -= objectHandler.objList.Count;
@@ -138,25 +138,29 @@ namespace MMA
         }
 
         [ExcelFunction(Description = "Get the value of a key of an object")]
-        public static string mmGetObjInfo(string objName, string objType, string key)
+        public static object[,] mmGetObjInfo(string objName, string objType, string key, object column, object row)
         {
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
-                return "Object not found.";
+                return new string[1, 1] { { "Object not found." } };
             PropertyInfo[] keyList = obj.GetType().GetProperties();
             for (int i = 0; i < keyList.Length; i++)
                 if (key.ToUpper() == keyList[i].Name.ToUpper())
                 {
                     try
                     {
-                        return keyList[i].GetValue(obj, null).ToString();
+                        if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
+                        {
+                            return ((Mat) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
+                        }
+                        return new string[1, 1] { { keyList[i].GetValue(obj, null).ToString() } };
                     }
                     catch (Exception e)
                     {
-                        return e.Message.ToString();
+                        return new string[1, 1] { { e.Message.ToString() } };
                     }
                 }
-            return "Object found, key not found.";
+            return new string[1, 1] { { "Object found, key not found." } };
         }
 
         [ExcelFunction(Description = "Modify an object")]

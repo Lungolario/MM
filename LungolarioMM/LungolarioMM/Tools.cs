@@ -1,4 +1,5 @@
 using System;
+using ExcelDna.Integration;
 
 namespace MMA
 {
@@ -23,6 +24,7 @@ namespace MMA
     public abstract class Mat
     {
         public abstract void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols);
+        public abstract object[,] ObjInfo(object column, object row);
     }
     public class Matrix<T> : Mat
     {
@@ -41,6 +43,28 @@ namespace MMA
                         throw new Exception(e.Message.ToString() + " Error in cell (" + (rowStart+iRow) + "," + (colStart + iCol) + ") of range.");
                     }
                 }
+        }
+        public override object[,] ObjInfo(object column, object row)
+        {
+            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+                return (object[,])(object)content;
+            if (column.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[1, content.GetLength(1)];
+                for (int i = 0; i < content.GetLength(1); i++)
+                    result[0, i] = content[Convert.ToInt32(row), i];
+                return result;
+            }
+            if (row.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[content.GetLength(0), 1];
+                for (int i = 0; i < content.GetLength(0); i++)
+                {
+                    result[i, 0] = content[i, Convert.ToInt32(column)];
+                }
+                return result;
+            }
+            return new object[1, 1] { { content[Convert.ToInt32(row), Convert.ToInt32(column)] } } ;
         }
         public T[,] content;
         public bool hasHeader() { return false; }
@@ -66,6 +90,47 @@ namespace MMA
                 }
             }
         }
+        public override object[,] ObjInfo(object column, object row)
+        {
+            int iCol;
+            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[1 + content.GetLength(0), content.GetLength(1)];
+                for (iCol = 0; iCol < content.GetLength(1); iCol++)
+                    result[0, iCol] = columnHeaders[iCol];
+                for (int iRow = 0; iRow < content.GetLength(0); iRow++)
+                    for (iCol = 0; iCol < content.GetLength(1); iCol++)
+                        result[iRow + 1, iCol] = content[iRow, iCol];
+                return result;
+            }
+            if (column.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[1, content.GetLength(1)];
+                if (Convert.ToInt32(row) == 0)
+                    for (int i = 0; i < content.GetLength(1); i++)
+                        result[0, i] = columnHeaders[i];
+                else
+                    for (int i = 0; i < content.GetLength(1); i++)
+                        result[0, i] = content[Convert.ToInt32(row) - 1, i];
+                return result;
+            }
+            if (row.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[content.GetLength(0), 1];
+                iCol = FindColumnHeader(column);
+                for (int i = 0; i < content.GetLength(0); i++)
+                    result[i, 0] = content[i, iCol];
+                return result;
+            }
+            return new object[1, 1] { { content[Convert.ToInt32(row) - 1, FindColumnHeader(column)] } };
+        }
+        public int FindColumnHeader(object column)
+        {
+            for (int iCol = 0; iCol < content.GetLength(1); iCol++)
+                if (column.Equals((object)columnHeaders[iCol]))
+                    return iCol;
+            throw new Exception("Column Header not found.");
+        }
         public HR[] columnHeaders;
         public new bool hasHeader() { return true; }
     }
@@ -87,6 +152,45 @@ namespace MMA
                 }
             }
             upperLeft = range[rowStart, colStart].ToString();
+        }
+        public override object[,] ObjInfo(object column, object row)
+        {
+            int iCol, iRow;
+            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[1 + content.GetLength(0), 1 + content.GetLength(1)];
+                result[0, 0] = upperLeft;
+                for (iRow = 0; iRow < content.GetLength(0); iRow++)
+                    result[iRow + 1, 0] = rowHeaders[iRow];
+                for (iCol = 0; iCol < content.GetLength(1); iCol++)
+                    result[0, iCol + 1] = columnHeaders[iCol];
+                for (iRow = 0; iRow < content.GetLength(0); iRow++)
+                    for (iCol = 0; iCol < content.GetLength(1); iCol++)
+                        result[iRow + 1, iCol] = content[iRow, iCol];
+                return result;
+            }
+            if (column.GetType() == typeof(ExcelMissing))
+            {
+                object[,] result = new object[1, content.GetLength(1)];
+                iRow = FindRowHeader(row);
+                for (int i = 0; i < content.GetLength(1); i++)
+                    result[0, i] = content[iRow, i];
+                return result;
+            }
+            if (row.GetType() == typeof(ExcelMissing))
+            {
+                return base.ObjInfo(column, row);
+            }
+            if (Convert.ToInt32(column) == 0 && Convert.ToInt32(row) == 0)
+                return new string[1, 1] { { upperLeft } };
+            return new object[1, 1] { { content[FindRowHeader(row), FindColumnHeader(column)] } };
+        }
+        public int FindRowHeader(object row)
+        {
+            for (int iRow = 0; iRow < content.GetLength(0); iRow++)
+                if (row.Equals((object)rowHeaders[iRow]))
+                    return iRow;
+            throw new Exception("Row Header not found.");
         }
         public HR[] rowHeaders;
         public string upperLeft;
