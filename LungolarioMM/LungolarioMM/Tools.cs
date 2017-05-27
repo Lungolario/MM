@@ -103,25 +103,23 @@ namespace MMA
                         result[iRow + 1, iCol] = content[iRow, iCol];
                 return result;
             }
-            if (column.GetType() == typeof(ExcelMissing))
+            if (row.GetType() != typeof(ExcelMissing) && Convert.ToInt32(row) == 0)
             {
-                if (Convert.ToInt32(row) > 0)
-                    return base.ObjInfo(column, Convert.ToInt32(row) - 1);
                 object[,] result = new object[1, content.GetLength(1)];
                 for (int i = 0; i < content.GetLength(1); i++)
                     result[0, i] = columnHeaders[i];
                 return result;
             }
-            if (row.GetType() == typeof(ExcelMissing))
-                return base.ObjInfo(FindColumnHeader(column), row);
-            return new object[1, 1] { { content[Convert.ToInt32(row) - 1, FindColumnHeader(column)] } };
+            return base.ObjInfo(FindHeader(column, columnHeaders, "Column"), row);
         }
-        public int FindColumnHeader(object column)
+        public object FindHeader(object index, HR[] header, string name)
         {
-            for (int iCol = 0; iCol < content.GetLength(1); iCol++)
-                if (column.Equals((object)columnHeaders[iCol]))
-                    return iCol;
-            throw new Exception("Column Header not found.");
+            if (index.GetType() == typeof(ExcelMissing))
+                return index;
+            for (int i = 0; i < header.GetLength(0); i++)
+                if (index.Equals((object)header[i]))
+                    return i;
+            throw new Exception(name + " Header not found.");
         }
         public HR[] columnHeaders;
         public new bool hasHeader() { return true; }
@@ -161,20 +159,9 @@ namespace MMA
                         result[iRow + 1, iCol] = content[iRow, iCol];
                 return result;
             }
-            if (column.GetType() == typeof(ExcelMissing))
-                return base.ObjInfo(column, FindRowHeader(row));
-            if (row.GetType() == typeof(ExcelMissing))
-                return base.ObjInfo(column, row);
             if (Convert.ToInt32(column) == 0 && Convert.ToInt32(row) == 0)
                 return new string[1, 1] { { upperLeft } };
-            return new object[1, 1] { { content[FindRowHeader(row), FindColumnHeader(column)] } };
-        }
-        public int FindRowHeader(object row)
-        {
-            for (int iRow = 0; iRow < content.GetLength(0); iRow++)
-                if (row.Equals((object)rowHeaders[iRow]))
-                    return iRow;
-            throw new Exception("Row Header not found.");
+            return base.ObjInfo(column, FindHeader(row, rowHeaders, "Row"));
         }
         public HR[] rowHeaders;
         public string upperLeft;
