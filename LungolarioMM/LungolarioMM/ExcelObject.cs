@@ -21,7 +21,7 @@ namespace MMA
                     for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
                         {
-                            if (typeof(Mat).IsAssignableFrom(keyList[j].PropertyType))
+                            if (typeof(iMatrix).IsAssignableFrom(keyList[j].PropertyType))
                             {
                                 int countRows, countColumns;
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
@@ -29,7 +29,7 @@ namespace MMA
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
                                     if (range[i + 1, countColumns].GetType() == typeof(ExcelEmpty)) break;
 
-                                Mat mat = (Mat)Activator.CreateInstance(keyList[j].PropertyType);
+                                iMatrix mat = (iMatrix)Activator.CreateInstance(keyList[j].PropertyType);
                                 mat.CreateMatrix(range, i + 1, countRows - 1, 1, countColumns - 1);
                                 keyList[j].SetValue(this, mat, null);
                                 i += countRows - 1;
@@ -76,6 +76,7 @@ namespace MMA
         public string currency { get; set; }
         public double rate { get; set; }
         public MatrixH<double, string> rates { get; set; }
+        //public Vectors rates = new Vectors(new string[1] { "A" }, new Type[1] { typeof(double) }); 
     }
     public class Vol : ExcelObject
     {

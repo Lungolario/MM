@@ -55,12 +55,12 @@ namespace MMA
 
                 for (int i = 0, j = 0; i < keyList.Length; i++)
                 {
-                    if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
+                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
                     {
                         results[i, 0] = keyList[i].Name;
                         results[i, 1] = "Tables not implemented yet.";
-                        Mat ob = keyList[i].GetValue(dispObj, null) as Mat;
-                        Mat mat = (Mat)Activator.CreateInstance(keyList[i].PropertyType);
+                        iMatrix ob = keyList[i].GetValue(dispObj, null) as iMatrix;
+                        iMatrix mat = (iMatrix)Activator.CreateInstance(keyList[i].PropertyType);
                         mat = ob;
                         FieldInfo[] fi = mat.GetType().GetFields();
                         List<Array> data = new List<Array>();
@@ -149,9 +149,9 @@ namespace MMA
                 {
                     try
                     {
-                        if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
+                        if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
                         {
-                            return ((Mat) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
+                            return ((iMatrix) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
                         }
                         return new string[1, 1] { { keyList[i].GetValue(obj, null).ToString() } };
                     }
