@@ -62,10 +62,20 @@ namespace MMA
                         key = keyList[i].Name;
                         value = "";
                         dictionary.Add(key + " " + value);
-                        Mat ob = keyList[i].GetValue(dispObj, null) as Mat;
-                        Mat mat = (Mat)Activator.CreateInstance(keyList[i].PropertyType);
+                        iMatrix ob = keyList[i].GetValue(dispObj, null) as iMatrix;
+                        iMatrix mat = (iMatrix)Activator.CreateInstance(keyList[i].PropertyType);
                         mat = ob;
+                        string s = mat.ToString();
+                        Type t = ob.GetType();
+                        FieldInfo[] fi2 = t.GetFields();
+                        BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                         BindingFlags.Static | BindingFlags.Instance |
+                         BindingFlags.DeclaredOnly;
                         FieldInfo[] fi = mat.GetType().GetFields();
+                        //foreach(object o in mat)
+                        //{
+                        //    string a = o.ToString();
+                        //}
                         foreach (FieldInfo f in fi)
                         {
                             Array vals = (Array)f.GetValue(mat);

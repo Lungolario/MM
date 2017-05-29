@@ -118,7 +118,7 @@ namespace MMA
             }
             return new object[1, 1] { { content[Convert.ToInt32(row), Convert.ToInt32(column)] } } ;
         }
-        protected T[,] content;
+        public T[,] content;
         public bool hasHeader() { return false; }
         public bool hasRowHeader() { return false; }
         public int contentWidth() { return content.GetLength(1); }
@@ -173,7 +173,8 @@ namespace MMA
                     return i;
             throw new Exception(name + " Header not found.");
         }
-        protected HR[] columnHeaders;
+
+        public HR[] columnHeaders;
         public new bool hasHeader() { return true; }
     }
     public class MatrixHR<T, HR> : MatrixH<T, HR>
