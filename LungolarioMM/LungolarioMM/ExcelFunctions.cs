@@ -56,7 +56,7 @@ namespace MMA
 
                 for (int i = 0; i < keyList.Length; i++)
                 {
-                    if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
+                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
                     {
                         dictionary.Add(objName + " " + objType.ToUpper());
                         key = keyList[i].Name;
@@ -137,9 +137,9 @@ namespace MMA
                 {
                     try
                     {
-                        if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
+                        if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
                         {
-                            return ((Mat) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
+                            return ((iMatrix) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
                         }
                         return new string[1, 1] { { keyList[i].GetValue(obj, null).ToString() } };
                     }
