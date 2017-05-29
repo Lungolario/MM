@@ -75,8 +75,13 @@ namespace MMA
     {
         public string currency { get; set; }
         public double rate { get; set; }
-        public MatrixH<double, string> rates { get; set; }
-        //public Vectors rates = new Vectors(new string[1] { "A" }, new Type[1] { typeof(double) }); 
+        public class RatesVectors : Vectors
+        {
+            public double[] A { get; set; }
+            public double[] B { get; set; }
+            public double[] C { get; set; }
+        }
+        public RatesVectors rates { get; set; }
     }
     public class Vol : ExcelObject
     {

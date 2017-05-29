@@ -2,6 +2,7 @@ using System;
 using ExcelDna.Integration;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace MMA
 {
@@ -227,29 +228,34 @@ namespace MMA
         protected string upperLeft;
         public new bool hasRowHeader() { return true; }
     }
-    
-    /* work in progress
-     public class Vectors : iMatrix
+
+    public abstract class Vectors : iMatrix
     {
-        public Vectors(string[] names, Type[] types)
-        {
-            this.names = names;
-            for (int i = 0; i < types.Length; i++)
-            {
-                var a = Array.CreateInstance(types[i], 2);
-                vector.Add(a);
-                vector.Add(Array.CreateInstance(types[i],0));
-            }
-        }
         public void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
+            PropertyInfo[] keyList = this.GetType().GetProperties();
+            if (nRows > 1 && nCols > 0)
+                for (int i = 0; i < nCols; i++)
+                {
+                    int j;
+                    for (j = 0; j < keyList.Length; j++)
+                        if (range[rowStart, colStart + i].ToString().ToUpper() == keyList[j].Name.ToUpper())
+                        {
+                            var help = Array.CreateInstance(keyList[j].PropertyType.GetElementType(), nRows - 1);
+                            for (int k = 1; k < nRows; k++)
+                                help.SetValue(range[rowStart + k, colStart + i], k-1);
+                            keyList[j].SetValue(this, help, null);
+                            break;
+                        }
+                    if (j == keyList.Length)
+                        throw new Exception("Key " + range[i, 0].ToString() + " not available for table " + this.GetType().Name);
+                }
         }
         public object[,] ObjInfo(object column, object row)
         {
-            return new string[1, 1] { { "HELP!" } };
+            return new string[1, 1] { { "Not implemented yet!" } };
         }
-        private string[] names;
-        private List<object> vector;
-    }*/
+    }
+
 }
 
