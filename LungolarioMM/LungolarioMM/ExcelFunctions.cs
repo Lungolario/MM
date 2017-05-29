@@ -36,69 +36,57 @@ namespace MMA
                 return e.Message.ToString();
             }
         }
-
         [ExcelFunction(Description = "Display an object")]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
-            string[,] results;
-            string[,] matrix;
+            object[,] matrix=null;
+            List<string> dictionary = new List<string>();
             ExcelObject dispObj = objectHandler.GetObject(objName, objType);
+            string key = "";
+            string value = "";
+
             if (dispObj == null)
             {
-                results = new string[1, 1];
-                results[0, 0] = "Object not found.";
+                matrix = new string[1, 1];
+                matrix[0, 0] = "Object not found.";
             }
             else
             {
                 PropertyInfo[] keyList = dispObj.GetType().GetProperties();
-                results = new string[keyList.Length, 2];
 
-                for (int i = 0, j = 0; i < keyList.Length; i++)
+                for (int i = 0; i < keyList.Length; i++)
                 {
                     if (typeof(Mat).IsAssignableFrom(keyList[i].PropertyType))
                     {
-                        results[i, 0] = keyList[i].Name;
-                        results[i, 1] = "Tables not implemented yet.";
+                        dictionary.Add(objName + " " + objType.ToUpper());
+                        key = keyList[i].Name;
+                        value = "";
+                        dictionary.Add(key + " " + value);
                         Mat ob = keyList[i].GetValue(dispObj, null) as Mat;
                         Mat mat = (Mat)Activator.CreateInstance(keyList[i].PropertyType);
                         mat = ob;
                         FieldInfo[] fi = mat.GetType().GetFields();
-                        List<Array> data = new List<Array>();
-                        //matrix = new string[fi[1].GetValue(mat).,];
                         foreach (FieldInfo f in fi)
                         {
                             Array vals = (Array)f.GetValue(mat);
-                            data.Add(vals);
+                            string values = "";
+                            foreach (object a in vals)
+                                values += a.ToString() + " ";
+                            dictionary.Add(values);
 
                         }
-                        int totalRows, totalCols;
-                        totalCols = data[0].Length;
-                        totalRows = data[1].Length / totalCols + 1;
-                        matrix = new string[totalRows, totalCols];
-                        int rowId, colId;
-                        rowId = colId = 0;
-                        foreach (Array arr in data)
-                        {
-                            foreach (var val in arr)
-                            {
-                                matrix[rowId, colId] = val.ToString();
-                                colId++;
-                                if (colId == totalCols)
-                                {
-                                    colId = 0;
-                                    rowId++;
-                                }
-                            }
-                        }
+                        matrix = Tools.CompileMatrix(dictionary);
                     }
                     else
                     {
-                        results[i, 0] = keyList[i].Name;
-                        results[i, 1] = keyList[i].GetValue(dispObj, null).ToString();
+                        key = keyList[i].Name;
+                        value = keyList[i].GetValue(dispObj, null).ToString();
+                        if(!(value=="" || value == null))
+                            dictionary.Add(key + " " + value);
                     }
                 }
             }
-            return results;
+            return matrix;
         }
 
         [ExcelFunction(Description = "Delete objects")]
