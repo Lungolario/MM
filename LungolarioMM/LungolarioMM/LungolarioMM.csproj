@@ -55,7 +55,6 @@
     <Compile Include="ExcelFunctions.cs" />
     <Compile Include="MatrixBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTests\ObjectCreationTest.cs" />
     <Compile Include="Tools.cs" />
   </ItemGroup>
   <ItemGroup>
