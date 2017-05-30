@@ -1,8 +1,5 @@
 using System;
-using ExcelDna.Integration;
-using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace MMA
 {
@@ -16,7 +13,7 @@ namespace MMA
         private int maxColumn = 0;
         private int maxRow = -1;
 
-        public MatrixBuilder add(Array field, bool right, bool below, bool transpose)
+        public MatrixBuilder Add(Array field, bool right, bool below, bool transpose)
         {
             if (below || maxRow < 0) upperLeftRow = maxRow + 1;
             upperLeftColumn = right ? lowerRightColumn + 1 : 0;
@@ -35,14 +32,14 @@ namespace MMA
             matrices.Add(new MBHelp(field, upperLeftRow, upperLeftColumn, transpose));
             return this;
         }
-        public object[,] deliver()
+        public object[,] Deliver()
         {
             object[,] result = new object[maxRow + 1, maxColumn + 1];
             for (int iRow = 0; iRow < maxRow + 1; iRow++)
                 for (int iCol = 0; iCol < maxColumn + 1; iCol++)
                     result[iRow, iCol] = "";
             foreach (MBHelp field in matrices)
-                field.fill(ref result);
+                field.Fill(ref result);
             return result;
         }
         private class MBHelp
@@ -58,7 +55,7 @@ namespace MMA
                 this.upperLeftColumn = upperLeftColumn;
                 this.transpose = transpose;
             }
-            public void fill(ref object[,] result)
+            public void Fill(ref object[,] result)
             {
                 if (field.Rank == 1)
                     if (transpose)

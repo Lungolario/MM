@@ -1,7 +1,5 @@
 using System;
 using ExcelDna.Integration;
-using System.Linq;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace MMA
@@ -67,7 +65,7 @@ namespace MMA
             }
             return new object[1, 1] { { content[Convert.ToInt32(row), Convert.ToInt32(column)] } } ;
         }
-        public T[,] content;
+        protected T[,] content;
     }
     public class MatrixH<T, HR> : Matrix<T>
     {
@@ -92,15 +90,15 @@ namespace MMA
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
             {
                 MatrixBuilder result = new MatrixBuilder();
-                result.add(columnHeaders, false, true, true);
-                result.add(content, false, true, false);
-                return result.deliver();
+                result.Add(columnHeaders, false, true, true);
+                result.Add(content, false, true, false);
+                return result.Deliver();
             }
             if (row.GetType() != typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
             {
                 MatrixBuilder result = new MatrixBuilder();
-                result.add(columnHeaders, false, true, true);
-                return result.deliver();
+                result.Add(columnHeaders, false, true, true);
+                return result.Deliver();
             }
             return base.ObjInfo(FindHeader(column, columnHeaders, "Column"), row);
         }
@@ -113,8 +111,7 @@ namespace MMA
                     return i;
             throw new Exception(name + " Header not found.");
         }
-
-        public HR[] columnHeaders;
+        protected HR[] columnHeaders;
     }
     public class MatrixHR<T, HR> : MatrixH<T, HR>
     {
@@ -140,11 +137,11 @@ namespace MMA
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
             {
                 MatrixBuilder result = new MatrixBuilder();
-                result.add(new string[1, 1] { { upperLeft } },false,true,false);
-                result.add(columnHeaders, true, false, true);
-                result.add(rowHeaders, false, true, false);
-                result.add(content, true, false, false);
-                return result.deliver();
+                result.Add(new string[1, 1] { { upperLeft } },false,true,false);
+                result.Add(columnHeaders, true, false, true);
+                result.Add(rowHeaders, false, true, false);
+                result.Add(content, true, false, false);
+                return result.Deliver();
             }
             if (Convert.ToInt32(column) == -1 && Convert.ToInt32(row) == -1)
                 return new string[1, 1] { { upperLeft } };
@@ -202,11 +199,11 @@ namespace MMA
                 for (iCol = 0; iCol < nCol; iCol++)
                     header[iCol] = keyList[iCol].Name;
                 MatrixBuilder resi = new MatrixBuilder();
-                resi.add(header, false, true, true);
-                resi.add((Array)keyList[0].GetValue(this, null),false,true,false);
+                resi.Add(header, false, true, true);
+                resi.Add((Array)keyList[0].GetValue(this, null),false,true,false);
                 for (iCol = 1; iCol < nCol; iCol++)
-                    resi.add((Array)keyList[iCol].GetValue(this, null), true, false, false);
-                return resi.deliver();
+                    resi.Add((Array)keyList[iCol].GetValue(this, null), true, false, false);
+                return resi.Deliver();
             }
             if (column.GetType() == typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
             {
@@ -232,4 +229,3 @@ namespace MMA
         }
     }
 }
-

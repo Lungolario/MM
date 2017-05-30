@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Linq;
-using System.Collections;
 
 namespace MMA
 {
@@ -49,14 +48,14 @@ namespace MMA
             {
                 if (keyList[i].GetValue(obj, null) != null)
                 {
-                    result.add(new string[1] { keyList[i].Name }, false, true, false);
+                    result.Add(new string[1] { keyList[i].Name }, false, true, false);
                     if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                        result.add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
+                        result.Add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
                     else
-                        result.add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
+                        result.Add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
                 }
             }
-            return result.deliver();
+            return result.Deliver();
         }
 
         [ExcelFunction(Description = "Delete objects")]
@@ -64,7 +63,7 @@ namespace MMA
         {
             int i = objectHandler.objList.Count;
             if (type != "" && name != "")
-                objectHandler.objList.RemoveAll(item => item.name.ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
+                objectHandler.objList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
             else if (type != "")
                 objectHandler.objList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
@@ -80,7 +79,7 @@ namespace MMA
             int j = 0;
             foreach (var obj in objectHandler.objList)
             {
-                results[j, 0] = obj.name;
+                results[j, 0] = obj.GetName();
                 results[j++, 1] = obj.GetType().Name.ToUpper();
             }
             return results;
@@ -157,7 +156,7 @@ namespace MMA
                 {
                     PropertyInfo[] keyList = obj.GetType().GetProperties().Where(p=>p.DeclaringType== obj.GetType()).ToArray();
                     data += obj.GetType().Name + "\r\n";
-                    data += "name " + obj.name + "\r\n";
+                    data += "name " + obj.GetName() + "\r\n";
                     for (int i = 0; i < keyList.Length; i++)
                     {
                         data += keyList[i].Name + " " + keyList[i].GetValue(obj, null).ToString() + "\r\n";
@@ -215,4 +214,3 @@ namespace MMA
         }
     }
 }
-

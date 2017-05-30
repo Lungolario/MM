@@ -7,7 +7,7 @@ namespace MMA
 {
     public abstract class ExcelObject
     {
-        public string name { get; private set; }
+        private string name;
         private int counter = 0;
         public virtual void CreateObject(string name, object[,] range)
         {
@@ -61,10 +61,8 @@ namespace MMA
             counter++;
             return this;
         }
-        public string GetNameCounter()
-        {
-            return this.name + ":" + this.counter;
-        }
+        public string GetName() { return this.name; }
+        public string GetNameCounter() { return this.name + ":" + this.counter; }
     }
     public class Model : ExcelObject
     {
@@ -116,10 +114,9 @@ namespace MMA
             objList.Add(newObj.TakeOverOldObject(this));
             return newObj;
         }
-
         public ExcelObject GetObject(string name, string type)
         {
-            return objList.Find(item => item.name.ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
+            return objList.Find(item => item.GetName().ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
         }
     }
 }
