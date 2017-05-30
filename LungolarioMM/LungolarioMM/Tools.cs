@@ -21,58 +21,6 @@ namespace MMA
             Array.Copy(data, index, result, 0, length);
             return result;
         }
-        public static object[,] CompileMatrix(List<string> data)
-        {
-            object[,] dataMatrix = null;
-            int innerMatrixWidth = data[data.Count - 2].Split(' ').Count() - 1;
-            int matrixWidth = data[data.Count - 2].Split(' ').Count();
-            int matrixHeight = ((data[data.Count - 1].Split(' ').Count()-1) / (data[data.Count - 2].Split(' ').Count()-1)) + data.Count - 1;
-            dataMatrix = new object[matrixHeight, matrixWidth];
-            int rowCtr = 0;
-            foreach (string entry in data)
-            {
-                string []dataValuePair = entry.Split(' ');
-                for(int colCtr=0,valCtr=0;colCtr<dataValuePair.Length;colCtr++)
-                {
-                    if(rowCtr < data.Count-1)
-                    {
-                        if (dataValuePair[colCtr] != "")
-                        {
-                            if (rowCtr != data.Count - 2)
-                                dataMatrix[rowCtr, colCtr] = dataValuePair[colCtr];
-                            else
-                            {
-                                dataMatrix[rowCtr, ++colCtr] = dataValuePair[--colCtr];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (dataValuePair[colCtr] != "")
-                        {
-
-                            dataMatrix[rowCtr, ++colCtr] = dataValuePair[valCtr];
-                            valCtr++;
-                            colCtr--;
-                        }
-                        if ((dataValuePair.Length - 1) / innerMatrixWidth == colCtr)
-                        {
-                            rowCtr++;
-                            if (rowCtr > data.Count)
-                                break;
-                            colCtr = -1;
-                        }
-
-                    }
-                }
-                rowCtr++;
-            }
-            for(int rCtr=0; rCtr < dataMatrix.GetLength(0); rCtr++)
-                for (int cCtr = 0; cCtr < dataMatrix.GetLength(1); cCtr++)
-                    if (dataMatrix[rCtr,cCtr] == null)
-                        dataMatrix[rCtr, cCtr] = (object)"#N/A";
-            return dataMatrix;
-        }
     }
 
     //interface to simplify code in ExcelObject.CreateObject and ExcelFunctions.mmDisplayObj

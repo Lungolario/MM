@@ -36,57 +36,27 @@ namespace MMA
                 return e.Message.ToString();
             }
         }
+
         [ExcelFunction(Description = "Display an object")]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
-            object[,] matrix=null;
-            List<string> dictionary = new List<string>();
-            ExcelObject dispObj = objectHandler.GetObject(objName, objType);
-            string key = "";
-            string value = "";
-
-            if (dispObj == null)
+            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            if (obj == null)
+                return new string[1, 1] { { "Object not found." } };
+            PropertyInfo[] keyList = obj.GetType().GetProperties();
+            MatrixBuilder result = new MatrixBuilder();
+            for (int i = 0; i < keyList.Length; i++)
             {
-                matrix = new string[1, 1];
-                matrix[0, 0] = "Object not found.";
-            }
-            else
-            {
-                PropertyInfo[] keyList = dispObj.GetType().GetProperties();
-
-                for (int i = 0; i < keyList.Length; i++)
+                if (keyList[i].GetValue(obj, null) != null)
                 {
+                    result.add(new string[1] { keyList[i].Name }, false, true, false);
                     if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                    {
-                        dictionary.Add(objName + " " + objType.ToUpper());
-                        key = keyList[i].Name;
-                        value = "";
-                        dictionary.Add(key + " " + value);
-                        iMatrix ob = keyList[i].GetValue(dispObj, null) as iMatrix;
-                        iMatrix mat = (iMatrix)Activator.CreateInstance(keyList[i].PropertyType);
-                        mat = ob;
-                        FieldInfo[] fi = mat.GetType().GetFields();
-                        foreach (FieldInfo f in fi)
-                        {
-                            Array vals = (Array)f.GetValue(mat);
-                            string values = "";
-                            foreach (object a in vals)
-                                values += a.ToString() + " ";
-                            dictionary.Add(values);
-
-                        }
-                        matrix = Tools.CompileMatrix(dictionary);
-                    }
+                        result.add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
                     else
-                    {
-                        key = keyList[i].Name;
-                        value = keyList[i].GetValue(dispObj, null).ToString();
-                        if(!(value=="" || value == null))
-                            dictionary.Add(key + " " + value);
-                    }
+                        result.add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
                 }
             }
-            return matrix;
+            return result.deliver();
         }
 
         [ExcelFunction(Description = "Delete objects")]
