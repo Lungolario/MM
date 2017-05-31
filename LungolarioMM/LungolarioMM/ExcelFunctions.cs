@@ -23,6 +23,29 @@ namespace MMA
 
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
 
+        private static object[,] GetObjInfoAs2D(ExcelObject obj)
+        {
+            PropertyInfo[] keyList = obj.GetType().GetProperties();
+            MatrixBuilder result = new MatrixBuilder();
+            for (int i = 0; i < keyList.Length; i++)
+            {
+                if (keyList[i].GetValue(obj, null) != null)
+                {
+                    result.Add(new string[1] { keyList[i].Name }, false, true, false);
+                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
+                        result.Add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
+                    else
+                        result.Add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
+                }
+            }
+            return result.Deliver();
+        }
+
+
+
+        /***************************
+         * Excel Functions
+         * ************************/
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
@@ -42,20 +65,7 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return new string[1, 1] { { "Object not found." } };
-            PropertyInfo[] keyList = obj.GetType().GetProperties();
-            MatrixBuilder result = new MatrixBuilder();
-            for (int i = 0; i < keyList.Length; i++)
-            {
-                if (keyList[i].GetValue(obj, null) != null)
-                {
-                    result.Add(new string[1] { keyList[i].Name }, false, true, false);
-                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                        result.Add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
-                    else
-                        result.Add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
-                }
-            }
-            return result.Deliver();
+            return GetObjInfoAs2D(obj);
         }
 
         [ExcelFunction(Description = "Delete objects")]
@@ -153,20 +163,7 @@ namespace MMA
                 obj = objectHandler.GetObject(objName[ctr, 0].ToString(), objType[ctr, 0].ToString());
                 if (obj != null)
                 {
-                    PropertyInfo[] keyList = obj.GetType().GetProperties();
-                    MatrixBuilder result = new MatrixBuilder();
-                    for (int i = 0; i < keyList.Length; i++)
-                    {
-                        if (keyList[i].GetValue(obj, null) != null)
-                        {
-                            result.Add(new string[1] { keyList[i].Name }, false, true, false);
-                            if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                                result.Add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
-                            else
-                                result.Add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
-                        }
-                    }
-                    object [,] objData = result.Deliver();
+                    object [,] objData = GetObjInfoAs2D(obj);
                     data += obj.GetType().Name + "\r\n";
                     data += "name " + obj.GetName() + "\r\n";
                     for (int rCtr=0;rCtr<objData.GetLength(0);rCtr++)
