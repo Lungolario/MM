@@ -11,6 +11,11 @@ namespace MMA
     public class ExcelFunctions : IExcelAddIn
     {
         private static DateTime EXPIRY_DATE = new DateTime(2018, 05, 15);
+
+
+        /***************************
+         * IExcelAddIn Interface Functions
+         * ************************/
         public void AutoOpen()
         {
             if (EXPIRY_DATE < DateTime.Today)
@@ -20,6 +25,7 @@ namespace MMA
             }
         }
         public void AutoClose() { }
+        /**********************************************/
 
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
 
@@ -158,6 +164,7 @@ namespace MMA
         {
             string data = "";
             ExcelObject obj;
+            int numberOfSavedObjs = 0;
             for (int ctr=0;ctr<objName.Length;ctr++)
             {
                 obj = objectHandler.GetObject(objName[ctr, 0].ToString(), objType[ctr, 0].ToString());
@@ -178,13 +185,13 @@ namespace MMA
                         data += "\r\n";
                     }
                     data += "\r\n";
-
+                    numberOfSavedObjs++;
                 }
             }
             try
             {
                 File.WriteAllText(location, data);
-                return objName.Length + " object saved";
+                return numberOfSavedObjs != 0 ? numberOfSavedObjs + " object saved" : "No objects created";
             }
             catch(Exception e)
             {
