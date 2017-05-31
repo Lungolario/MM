@@ -150,24 +150,44 @@ namespace MMA
             ExcelObject obj;
             for (int ctr=0;ctr<objName.Length;ctr++)
             {
-
                 obj = objectHandler.GetObject(objName[ctr, 0].ToString(), objType[ctr, 0].ToString());
                 if (obj != null)
                 {
-                    PropertyInfo[] keyList = obj.GetType().GetProperties().Where(p=>p.DeclaringType== obj.GetType()).ToArray();
-                    data += obj.GetType().Name + "\r\n";
-                    data += "name " + obj.GetName() + "\r\n";
+                    PropertyInfo[] keyList = obj.GetType().GetProperties();
+                    MatrixBuilder result = new MatrixBuilder();
                     for (int i = 0; i < keyList.Length; i++)
                     {
-                        data += keyList[i].Name + " " + keyList[i].GetValue(obj, null).ToString() + "\r\n";
+                        if (keyList[i].GetValue(obj, null) != null)
+                        {
+                            result.Add(new string[1] { keyList[i].Name }, false, true, false);
+                            if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
+                                result.Add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
+                            else
+                                result.Add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
+                        }
+                    }
+                    object [,] objData = result.Deliver();
+                    data += obj.GetType().Name + "\r\n";
+                    data += "name " + obj.GetName() + "\r\n";
+                    for (int rCtr=0;rCtr<objData.GetLength(0);rCtr++)
+                    {
+                        for(int cCtr=0;cCtr<objData.GetLength(1);cCtr++)
+                        {
+                            if(objData[rCtr,cCtr].ToString()!="")
+                            {
+                                data += objData[rCtr,cCtr].ToString() + " ";
+                            }
+                        }
+                        data += "\r\n";
                     }
                     data += "\r\n";
+
                 }
             }
             try
             {
                 File.WriteAllText(location, data);
-                return "1 object saved";
+                return objName.Length + " object saved";
             }
             catch(Exception e)
             {
