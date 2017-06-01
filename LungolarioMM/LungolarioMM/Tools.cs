@@ -178,8 +178,13 @@ namespace MMA
                             else
                             {
                                 var help = Array.CreateInstance(keyList[j].PropertyType.GetElementType(), nRows - 1);
+
+                                
                                 for (int k = 1; k < nRows; k++)
-                                    help.SetValue(range[rowStart + k, colStart + i], k - 1);
+                                {
+                                    var value = Convert.ChangeType(range[rowStart + k, colStart + i],keyList[j].PropertyType.GetElementType());
+                                    help.SetValue(value, k-1);
+                                }
                                 keyList[j].SetValue(this, help, null);
                             }
                             break;

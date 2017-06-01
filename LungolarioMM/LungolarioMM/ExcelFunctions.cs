@@ -173,15 +173,21 @@ namespace MMA
                     object [,] objData = GetObjInfoAs2D(obj);
                     data += obj.GetType().Name + "\r\n";
                     data += "name " + obj.GetName() + "\r\n";
+                    string line = "";
                     for (int rCtr=0;rCtr<objData.GetLength(0);rCtr++)
                     {
+                        line = "";
                         for(int cCtr=0;cCtr<objData.GetLength(1);cCtr++)
                         {
                             if(objData[rCtr,cCtr].ToString()!="")
                             {
-                                data += objData[rCtr,cCtr].ToString() + " ";
+                                line += objData[rCtr, cCtr].ToString() + " ";
+                                //data += objData[rCtr,cCtr].ToString() + " ";
                             }
                         }
+                        if (line[line.Length - 1].ToString() == " ")
+                            line = line.Remove(line.Length - 1);
+                        data += line;
                         data += "\r\n";
                     }
                     data += "\r\n";
@@ -204,34 +210,72 @@ namespace MMA
         {
             if (!File.Exists(location))
             {
-                return null;
+
+                return new string[1, 1] { { "File not found." } };
             }
             else
             {
                 string[] text = File.ReadAllLines(location);
-                int count = text.ToList().Where(item => item == "").Count();
-                object[,] objNameAndCount = new object[count, 1];
+                Array indicesOfObjEnd = text.Select((s, i) => new { i, s })
+                    .Where(t => t.s == "")
+                    .Select(t => t.i)
+                    .ToArray();
+                object[,] objNameAndCount = new object[indicesOfObjEnd.Length, 1];
                 List<string> rangeValues = new List<string>();
                 int counterForObjCount = 0;
+                int indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
                 for (int counter = 0; counter < text.Length; counter++)
                 {
-                    if (counter % 5 == 0)
+                    string type = text[counter];
+                    string name = text[++counter].Replace("name ", "");
+
+                    rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
+                    MatrixBuilder result = new MatrixBuilder();
+                    for (int i = 0; i < rangeValues.Count; i++)
                     {
-                        string type = text[counter];
-                        int indexOfObjEnd = Array.IndexOf(text, "", counter++);
-                        string name = text[counter ++].Replace("name ","");
-                        rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
-                        object[,] range = new object[rangeValues.Count,2];
-                        for(int i=0;i< rangeValues.Count;i++)
+                        string[] str = rangeValues[i].Split(' ');
+                        if (str.Length <= 2)
                         {
-                            string[] str = rangeValues[i].Split(' ');
-                            range[i, 0] = str[0];
-                            range[i, 1] = str[1];
+                            if (!str.Contains("name"))
+                            {
+                                result.Add(new string[1] { str[0] }, false, true, false);
+                                if (str.Length > 1)
+                                    result.Add(new object[1] { str[1] }, true, false, false);
+                            }
                         }
-                        objNameAndCount[counterForObjCount, 0] = objectHandler.CreateObject(name, type, range).GetNameCounter();
-                        counter = indexOfObjEnd;
-                        counterForObjCount++;
+                        else
+                        {
+                            string[] vectors = new ArraySegment<string>(rangeValues.ToArray<string>(), i, rangeValues.Count - i).ToArray<string>();
+                            string[,] matrixData = new string[vectors.GetLength(0), vectors[0].Split(' ').Count()];
+                            for (int rCtr = 0; rCtr < matrixData.GetLength(0); rCtr++)
+                            {
+                                string[] vectorData = vectors[rCtr].Split(' ');
+                                for (int cCtr = 0; cCtr < str.Length; cCtr++)
+                                {
+                                    matrixData[rCtr, cCtr] = vectorData[cCtr];
+                                }
+                            }
+                            result.Add(matrixData, true, true, false);
+                            i = rangeValues.Count;
+                        }
                     }
+                    object[,] range = result.Deliver();
+                    for (int rCtr=0;rCtr<range.GetLength(0);rCtr++)
+                    {
+                        for (int cCtr = 0; cCtr < range.GetLength(1); cCtr++)
+                        {
+                            string data = (string)range[rCtr, cCtr];
+                            if (data=="")
+                            {
+                                range[rCtr, cCtr] = ExcelEmpty.Value;
+                            }
+                        }
+                    }
+                    objNameAndCount[counterForObjCount, 0] = objectHandler.CreateObject(name, type, range).GetNameCounter();
+                    counter = indexOfObjEnd;
+                    counterForObjCount++;
+                    if(counterForObjCount < indicesOfObjEnd.Length)
+                        indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
                 }
                 return objNameAndCount;
             }
