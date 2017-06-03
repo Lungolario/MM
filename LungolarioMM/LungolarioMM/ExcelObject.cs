@@ -9,7 +9,7 @@ namespace MMA
     {
         private string name;
         private int counter = 0;
-        public virtual void CreateObject(string name, object[,] range)
+        public void CreateObject(string name, object[,] range)
         {
             this.name = name;
             if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
@@ -46,6 +46,25 @@ namespace MMA
                 }
             }
         }
+
+        public object[,] DisplayObject()
+        {
+            PropertyInfo[] keyList = this.GetType().GetProperties();
+            MatrixBuilder result = new MatrixBuilder();
+            for (int i = 0; i < keyList.Length; i++)
+            {
+                if (keyList[i].GetValue(this, null) != null)
+                {
+                    result.Add(new string[1] { keyList[i].Name }, false, true, false);
+                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
+                        result.Add(((iMatrix)keyList[i].GetValue(this, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
+                    else
+                        result.Add(new object[1] { keyList[i].GetValue(this, null) }, true, false, false);
+                }
+            }
+            return result.Deliver();
+        }
+
         public ExcelObject TakeOverOldObject(ExcelObjectHandler objHandler)
         {
             ExcelObject existingObj = objHandler.GetObject(this.name, this.GetType().Name);

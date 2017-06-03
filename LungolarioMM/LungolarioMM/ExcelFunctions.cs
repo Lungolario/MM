@@ -12,10 +12,6 @@ namespace MMA
     {
         private static DateTime EXPIRY_DATE = new DateTime(2018, 05, 15);
 
-
-        /***************************
-         * IExcelAddIn Interface Functions
-         * ************************/
         public void AutoOpen()
         {
             if (EXPIRY_DATE < DateTime.Today)
@@ -25,33 +21,9 @@ namespace MMA
             }
         }
         public void AutoClose() { }
-        /**********************************************/
 
         static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
 
-        private static object[,] GetObjInfoAs2D(ExcelObject obj)
-        {
-            PropertyInfo[] keyList = obj.GetType().GetProperties();
-            MatrixBuilder result = new MatrixBuilder();
-            for (int i = 0; i < keyList.Length; i++)
-            {
-                if (keyList[i].GetValue(obj, null) != null)
-                {
-                    result.Add(new string[1] { keyList[i].Name }, false, true, false);
-                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                        result.Add(((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
-                    else
-                        result.Add(new object[1] { keyList[i].GetValue(obj, null) }, true, false, false);
-                }
-            }
-            return result.Deliver();
-        }
-
-
-
-        /***************************
-         * Excel Functions
-         * ************************/
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
@@ -71,7 +43,7 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return new string[1, 1] { { "Object not found." } };
-            return GetObjInfoAs2D(obj);
+            return obj.DisplayObject();
         }
 
         [ExcelFunction(Description = "Delete objects")]
@@ -123,9 +95,7 @@ namespace MMA
                     try
                     {
                         if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                        {
                             return ((iMatrix) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
-                        }
                         return new string[1, 1] { { keyList[i].GetValue(obj, null).ToString() } };
                     }
                     catch (Exception e)
@@ -170,7 +140,7 @@ namespace MMA
                 obj = objectHandler.GetObject(objName[ctr, 0].ToString(), objType[ctr, 0].ToString());
                 if (obj != null)
                 {
-                    object [,] objData = GetObjInfoAs2D(obj);
+                    object [,] objData = obj.DisplayObject();
                     data += obj.GetType().Name + "\r\n";
                     data += "name " + obj.GetName() + "\r\n";
                     string line = "";
@@ -209,76 +179,70 @@ namespace MMA
         public static object[,] mmLoadObjs(string location)
         {
             if (!File.Exists(location))
-            {
-
                 return new string[1, 1] { { "File not found." } };
-            }
-            else
+            string[] text = File.ReadAllLines(location);
+            Array indicesOfObjEnd = text.Select((s, i) => new { i, s })
+                .Where(t => t.s == "")
+                .Select(t => t.i)
+                .ToArray();
+            object[,] objNameAndCount = new object[indicesOfObjEnd.Length, 1];
+            List<string> rangeValues = new List<string>();
+            int counterForObjCount = 0;
+            int indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
+            for (int counter = 0; counter < text.Length; counter++)
             {
-                string[] text = File.ReadAllLines(location);
-                Array indicesOfObjEnd = text.Select((s, i) => new { i, s })
-                    .Where(t => t.s == "")
-                    .Select(t => t.i)
-                    .ToArray();
-                object[,] objNameAndCount = new object[indicesOfObjEnd.Length, 1];
-                List<string> rangeValues = new List<string>();
-                int counterForObjCount = 0;
-                int indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
-                for (int counter = 0; counter < text.Length; counter++)
-                {
-                    string type = text[counter];
-                    string name = text[++counter].Replace("name ", "");
+                string type = text[counter];
+                string name = text[++counter].Replace("name ", "");
 
-                    rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
-                    MatrixBuilder result = new MatrixBuilder();
-                    for (int i = 0; i < rangeValues.Count; i++)
+                rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
+                MatrixBuilder result = new MatrixBuilder();
+                for (int i = 0; i < rangeValues.Count; i++)
+                {
+                    string[] str = rangeValues[i].Split(' ');
+                    if (str.Length <= 2)
                     {
-                        string[] str = rangeValues[i].Split(' ');
-                        if (str.Length <= 2)
+                        if (!str.Contains("name"))
                         {
-                            if (!str.Contains("name"))
-                            {
-                                result.Add(new string[1] { str[0] }, false, true, false);
-                                if (str.Length > 1)
-                                    result.Add(new object[1] { str[1] }, true, false, false);
-                            }
-                        }
-                        else
-                        {
-                            string[] vectors = new ArraySegment<string>(rangeValues.ToArray<string>(), i, rangeValues.Count - i).ToArray<string>();
-                            string[,] matrixData = new string[vectors.GetLength(0), vectors[0].Split(' ').Count()];
-                            for (int rCtr = 0; rCtr < matrixData.GetLength(0); rCtr++)
-                            {
-                                string[] vectorData = vectors[rCtr].Split(' ');
-                                for (int cCtr = 0; cCtr < str.Length; cCtr++)
-                                {
-                                    matrixData[rCtr, cCtr] = vectorData[cCtr];
-                                }
-                            }
-                            result.Add(matrixData, true, true, false);
-                            i = rangeValues.Count;
+                            result.Add(new string[1] { str[0] }, false, true, false);
+                            if (str.Length > 1)
+                                result.Add(new object[1] { str[1] }, true, false, false);
                         }
                     }
-                    object[,] range = result.Deliver();
-                    for (int rCtr=0;rCtr<range.GetLength(0);rCtr++)
+                    else
                     {
-                        for (int cCtr = 0; cCtr < range.GetLength(1); cCtr++)
+                        string[] vectors = new ArraySegment<string>(rangeValues.ToArray<string>(), i, rangeValues.Count - i).ToArray<string>();
+                        string[,] matrixData = new string[vectors.GetLength(0), vectors[0].Split(' ').Count()];
+                        for (int rCtr = 0; rCtr < matrixData.GetLength(0); rCtr++)
                         {
-                            string data = (string)range[rCtr, cCtr];
-                            if (data=="")
+                            string[] vectorData = vectors[rCtr].Split(' ');
+                            for (int cCtr = 0; cCtr < str.Length; cCtr++)
                             {
-                                range[rCtr, cCtr] = ExcelEmpty.Value;
+                                matrixData[rCtr, cCtr] = vectorData[cCtr];
                             }
                         }
+                        result.Add(matrixData, true, true, false);
+                        i = rangeValues.Count;
                     }
-                    objNameAndCount[counterForObjCount, 0] = objectHandler.CreateObject(name, type, range).GetNameCounter();
-                    counter = indexOfObjEnd;
-                    counterForObjCount++;
-                    if(counterForObjCount < indicesOfObjEnd.Length)
-                        indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
                 }
-                return objNameAndCount;
+                object[,] range = result.Deliver();
+                for (int rCtr=0;rCtr<range.GetLength(0);rCtr++)
+                {
+                    for (int cCtr = 0; cCtr < range.GetLength(1); cCtr++)
+                    {
+                        string data = (string)range[rCtr, cCtr];
+                        if (data=="")
+                        {
+                            range[rCtr, cCtr] = ExcelEmpty.Value;
+                        }
+                    }
+                }
+                objNameAndCount[counterForObjCount, 0] = objectHandler.CreateObject(name, type, range).GetNameCounter();
+                counter = indexOfObjEnd;
+                counterForObjCount++;
+                if(counterForObjCount < indicesOfObjEnd.Length)
+                    indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
             }
+            return objNameAndCount;
         }
     }
 }
