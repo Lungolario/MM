@@ -126,53 +126,31 @@ namespace MMA
                         return e.Message.ToString();
                     }
                 }
-            return "Object found, key not found.";
+            return "Object found, key not found."; 
         }
 
         [ExcelFunction(Description = "Save Objects to Txt File")]
-        public static string mmSaveObjs(object[,] objName, object[,] objType, string location)
+        public static string mmSaveObjs(object[,] objNames, object[,] objTypes, string location)
         {
-            string data = "";
-            ExcelObject obj;
-            int numberOfSavedObjs = 0;
-            for (int ctr=0;ctr<objName.Length;ctr++)
+            string resultData = "";
+            if (objNames.GetLength(0) != objTypes.GetLength(0) || objNames.GetLength(1) != 1 || objTypes.GetLength(1) != 1)
+                return "objNames and objTypes must be Vectors of the same length!";
+            for (int iObj = 0; iObj < objNames.GetLength(0); iObj++)
             {
-                obj = objectHandler.GetObject(objName[ctr, 0].ToString(), objType[ctr, 0].ToString());
-                if (obj != null)
-                {
-                    object [,] objData = obj.DisplayObject();
-                    data += obj.GetType().Name + "\r\n";
-                    data += "name " + obj.GetName() + "\r\n";
-                    string line = "";
-                    for (int rCtr=0;rCtr<objData.GetLength(0);rCtr++)
-                    {
-                        line = "";
-                        for(int cCtr=0;cCtr<objData.GetLength(1);cCtr++)
-                        {
-                            if(objData[rCtr,cCtr].ToString()!="")
-                            {
-                                line += objData[rCtr, cCtr].ToString() + " ";
-                                //data += objData[rCtr,cCtr].ToString() + " ";
-                            }
-                        }
-                        if (line[line.Length - 1].ToString() == " ")
-                            line = line.Remove(line.Length - 1);
-                        data += line;
-                        data += "\r\n";
-                    }
-                    data += "\r\n";
-                    numberOfSavedObjs++;
-                }
+                ExcelObject obj = objectHandler.GetObject(objNames[iObj, 0].ToString(), objTypes[iObj, 0].ToString());
+                if (obj == null)
+                    return "Object " + objNames[iObj, 0].ToString() + " of type " + objTypes[iObj, 0].ToString() + "does not exist!";
+                resultData += obj.ObjectSerialize() + "\r\n";
             }
             try
             {
-                File.WriteAllText(location, data);
-                return numberOfSavedObjs != 0 ? numberOfSavedObjs + " object saved" : "No objects created";
+                File.WriteAllText(location, resultData);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return e.Message.ToString();
             }
+            return objNames.GetLength(0).ToString() + " object(s) was/were saved!";
         }
 
         [ExcelFunction(Description = "Load all Objects from Txt File")]

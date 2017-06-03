@@ -62,6 +62,23 @@ namespace MMA
                 }
             return result.Deliver();
         }
+        public string ObjectSerialize()
+        {
+            object[,] objMatrix = this.DisplayObject();
+            string data = "NEW" + this.GetType().Name.ToUpper() + "\r\n";
+            data += "name " + this.GetName() + "\r\n";
+            for (int iRow = 0; iRow < objMatrix.GetLength(0); iRow++)
+            {
+                string line = "";
+                for (int iCol = 0; iCol < objMatrix.GetLength(1); iCol++)
+                    if (objMatrix[iRow, iCol].ToString() != "")
+                        line += objMatrix[iRow, iCol].ToString() + " ";
+                if (line[line.Length - 1].ToString() == " ")
+                    line = line.Remove(line.Length - 1);
+                data += line + "\r\n";
+            }
+            return data;
+        }
 
         public ExcelObject TakeOverOldObject(ExcelObjectHandler objHandler)
         {
