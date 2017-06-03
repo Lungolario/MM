@@ -52,7 +52,6 @@ namespace MMA
             PropertyInfo[] keyList = this.GetType().GetProperties();
             MatrixBuilder result = new MatrixBuilder();
             for (int i = 0; i < keyList.Length; i++)
-            {
                 if (keyList[i].GetValue(this, null) != null)
                 {
                     result.Add(new string[1] { keyList[i].Name }, false, true, false);
@@ -61,7 +60,6 @@ namespace MMA
                     else
                         result.Add(new object[1] { keyList[i].GetValue(this, null) }, true, false, false);
                 }
-            }
             return result.Deliver();
         }
 

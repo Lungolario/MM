@@ -51,16 +51,16 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ObjectCreationTest.cs" />
+    <Compile Include="ExcelObject_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LungolarioMM\LungolarioMM.csproj">
+    <ProjectReference Include="..\LungolarioMM\MMA.csproj">
       <Project>{bac92f3a-55a2-43b0-876f-663355beec79}</Project>
-      <Name>LungolarioMM</Name>
+      <Name>MMA</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

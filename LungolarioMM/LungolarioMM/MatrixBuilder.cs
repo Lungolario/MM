@@ -10,7 +10,7 @@ namespace MMA
         private int upperLeftColumn = -1;
         private int lowerRightRow = -1;
         private int lowerRightColumn = -1;
-        private int maxColumn = 0;
+        private int maxColumn = -1;
         private int maxRow = -1;
 
         public MatrixBuilder Add(Array field, bool right, bool below, bool transpose)

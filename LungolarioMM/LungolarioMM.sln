@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LungolarioMM", "LungolarioMM\LungolarioMM.csproj", "{BAC92F3A-55A2-43B0-876F-663355BEEC79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMA", "LungolarioMM\MMA.csproj", "{BAC92F3A-55A2-43B0-876F-663355BEEC79}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{A322F856-79DB-404F-BC96-026F7B85D72B}"
 EndProject
