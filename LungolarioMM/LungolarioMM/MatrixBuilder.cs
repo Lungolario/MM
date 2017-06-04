@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ExcelDna.Integration;
 
 namespace MMA
 {
@@ -32,12 +33,17 @@ namespace MMA
             matrices.Add(new MBHelp(field, upperLeftRow, upperLeftColumn, transpose));
             return this;
         }
-        public object[,] Deliver()
+        public object[,] Deliver(bool isForSaveDown = true)
         {
+            object defaultValue;
+            if (isForSaveDown)
+                defaultValue = "";
+            else
+                defaultValue = ExcelEmpty.Value;
             object[,] result = new object[maxRow + 1, maxColumn + 1];
             for (int iRow = 0; iRow < maxRow + 1; iRow++)
                 for (int iCol = 0; iCol < maxColumn + 1; iCol++)
-                    result[iRow, iCol] = "";
+                    result[iRow, iCol] = defaultValue;
             foreach (MBHelp field in matrices)
                 field.Fill(ref result);
             return result;
@@ -58,21 +64,33 @@ namespace MMA
             public void Fill(ref object[,] result)
             {
                 if (field.Rank == 1)
+                {
                     if (transpose)
+                    {
                         for (int iCol = 0; iCol < field.Length; iCol++)
-                            result[upperLeftRow, upperLeftColumn + iCol] = field.GetValue(iCol);
+                            if (field.GetValue(iCol).ToString() != "")
+                                result[upperLeftRow, upperLeftColumn + iCol] = field.GetValue(iCol);
+                    }
                     else
                         for (int iRow = 0; iRow < field.Length; iRow++)
-                            result[upperLeftRow + iRow, upperLeftColumn] = field.GetValue(iRow);
+                            if (field.GetValue(iRow).ToString() != "")
+                                result[upperLeftRow + iRow, upperLeftColumn] = field.GetValue(iRow);
+                }
                 else
+                {
                     if (transpose)
+                    {
                         for (int iCol = 0; iCol < field.GetLength(0); iCol++)
                             for (int iRow = 0; iRow < field.GetLength(1); iRow++)
-                                result[upperLeftRow + iRow, upperLeftColumn + iCol] = field.GetValue(new int[2] { iCol, iRow });
+                                if (field.GetValue(new int[2] { iCol, iRow }).ToString() != "")
+                                    result[upperLeftRow + iRow, upperLeftColumn + iCol] = field.GetValue(new int[2] { iCol, iRow });
+                    }
                     else
                         for (int iCol = 0; iCol < field.GetLength(1); iCol++)
                             for (int iRow = 0; iRow < field.GetLength(0); iRow++)
-                                result[upperLeftRow + iRow, upperLeftColumn + iCol] = field.GetValue(new int[2] { iRow, iCol });
+                                if (field.GetValue(new int[2] { iRow, iCol }).ToString() != "")
+                                    result[upperLeftRow + iRow, upperLeftColumn + iCol] = field.GetValue(new int[2] { iRow, iCol });
+                }
             }
         }
     }

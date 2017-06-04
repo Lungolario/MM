@@ -95,7 +95,7 @@ namespace MMA
                     try
                     {
                         if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                            return ((iMatrix) keyList[i].GetValue(obj, null)).ObjInfo(column, row);
+                            return ((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(column, row);
                         return new string[1, 1] { { keyList[i].GetValue(obj, null).ToString() } };
                     }
                     catch (Exception e)
@@ -126,10 +126,10 @@ namespace MMA
                         return e.Message.ToString();
                     }
                 }
-            return "Object found, key not found."; 
+            return "Object found, key not found.";
         }
 
-        [ExcelFunction(Description = "Save Objects to Txt File")]
+        [ExcelFunction(Description = "Save objects to file")]
         public static string mmSaveObjs(object[,] objNames, object[,] objTypes, string location)
         {
             string resultData = "";
@@ -153,74 +153,52 @@ namespace MMA
             return objNames.GetLength(0).ToString() + " object(s) was/were saved!";
         }
 
-        [ExcelFunction(Description = "Load all Objects from Txt File")]
+        [ExcelFunction(Description = "Load all objects from file")]
         public static object[,] mmLoadObjs(string location)
         {
             if (!File.Exists(location))
                 return new string[1, 1] { { "File not found." } };
-            string[] text = File.ReadAllLines(location);
-            Array indicesOfObjEnd = text.Select((s, i) => new { i, s })
-                .Where(t => t.s == "")
-                .Select(t => t.i)
-                .ToArray();
-            object[,] objNameAndCount = new object[indicesOfObjEnd.Length, 1];
-            List<string> rangeValues = new List<string>();
-            int counterForObjCount = 0;
-            int indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
-            for (int counter = 0; counter < text.Length; counter++)
+            string[] fileText = File.ReadAllLines(location);
+            string name = "", type = "";
+            List<string> loadedObjs = new List<string>();
+            for (int iLine = 0, iObj = 0, iObjLine = 0; iLine < fileText.Length; iLine++, iObj++)
             {
-                string type = text[counter];
-                string name = text[++counter].Replace("name ", "");
-
-                rangeValues = Tools.SubArray(text, counter, indexOfObjEnd - counter).ToList();
-                MatrixBuilder result = new MatrixBuilder();
-                for (int i = 0; i < rangeValues.Count; i++)
+                MatrixBuilder mRange = new MatrixBuilder();
+                for (iObjLine = iLine; iObjLine < fileText.Length; iObjLine++)
                 {
-                    string[] str = rangeValues[i].Split(' ');
-                    if (str.Length <= 2)
+                    string[] lineFields = fileText[iObjLine].Split('\t');
+                    if (iObjLine == iLine)
                     {
-                        if (!str.Contains("name"))
-                        {
-                            result.Add(new string[1] { str[0] }, false, true, false);
-                            if (str.Length > 1)
-                                result.Add(new object[1] { str[1] }, true, false, false);
-                        }
+                        if (!lineFields[0].StartsWith("NEW"))
+                            return new string[1, 1] { { "File not in correct format at line " + iObjLine } };
+                        type = lineFields[0].Substring(3);
                     }
+                    else if (iObjLine == iLine + 1)
+                    {
+                        if (!(lineFields[0] == "name"))
+                            return new string[1, 1] { { "File not in correct format at line " + iObjLine } };
+                        name = lineFields[1];
+                    }
+                    else if (lineFields.Length < 2)
+                        break;
                     else
-                    {
-                        string[] vectors = new ArraySegment<string>(rangeValues.ToArray<string>(), i, rangeValues.Count - i).ToArray<string>();
-                        string[,] matrixData = new string[vectors.GetLength(0), vectors[0].Split(' ').Count()];
-                        for (int rCtr = 0; rCtr < matrixData.GetLength(0); rCtr++)
-                        {
-                            string[] vectorData = vectors[rCtr].Split(' ');
-                            for (int cCtr = 0; cCtr < str.Length; cCtr++)
-                            {
-                                matrixData[rCtr, cCtr] = vectorData[cCtr];
-                            }
-                        }
-                        result.Add(matrixData, true, true, false);
-                        i = rangeValues.Count;
-                    }
+                        mRange.Add(lineFields, false, true, true);
                 }
-                object[,] range = result.Deliver();
-                for (int rCtr=0;rCtr<range.GetLength(0);rCtr++)
+                try
                 {
-                    for (int cCtr = 0; cCtr < range.GetLength(1); cCtr++)
-                    {
-                        string data = (string)range[rCtr, cCtr];
-                        if (data=="")
-                        {
-                            range[rCtr, cCtr] = ExcelEmpty.Value;
-                        }
-                    }
+                    loadedObjs.Add(objectHandler.CreateObject(name, type, mRange.Deliver(false)).GetNameCounter().ToString());
                 }
-                objNameAndCount[counterForObjCount, 0] = objectHandler.CreateObject(name, type, range).GetNameCounter();
-                counter = indexOfObjEnd;
-                counterForObjCount++;
-                if(counterForObjCount < indicesOfObjEnd.Length)
-                    indexOfObjEnd = (int)indicesOfObjEnd.GetValue(counterForObjCount);
+                catch (Exception e)
+                {
+                    return new string[1, 1] { { "Error when generating object " + name + " of type " + type + ". " + e.Message.ToString() } };
+                }
+                iLine = iObjLine;
             }
-            return objNameAndCount;
+            object[,] vLoadedObjs = new object[loadedObjs.Count, 1];
+            for (int i = 0; i < loadedObjs.Count; i++)
+                vLoadedObjs[i, 0] = loadedObjs.ElementAt(i);
+
+            return vLoadedObjs;
         }
     }
 }
