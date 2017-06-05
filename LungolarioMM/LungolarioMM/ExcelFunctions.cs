@@ -200,5 +200,13 @@ namespace MMA
 
             return vLoadedObjs;
         }
+
+        public static object mmCurveRate(string objName, double start, double end)
+        {
+            ExcelObject curveObj = objectHandler.GetObject(objName, "CURVE");
+            if (curveObj == null)
+                return "Object not found.";
+            return ((Curve)curveObj).GetRate(start, end);
+        }
     }
 }

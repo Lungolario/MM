@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Curve.cs" />
     <Compile Include="ExcelObject.cs" />
     <Compile Include="ExcelFunctions.cs" />
     <Compile Include="MatrixBuilder.cs" />

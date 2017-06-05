@@ -17,6 +17,8 @@ namespace MMA
                 PropertyInfo[] keyList = this.GetType().GetProperties();
                 for (int i = 0; i < range.GetLength(0); i++)
                 {
+                    if (range[i, 0] == ExcelEmpty.Value)
+                        continue;
                     int j;
                     for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
@@ -25,7 +27,7 @@ namespace MMA
                             {
                                 int countRows, countColumns;
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
-                                    if (range[countRows + i, 0].GetType() != typeof(ExcelEmpty)) break;
+                                    if (range[countRows + i, 0].GetType() != typeof(ExcelEmpty) || range[countRows + i, 1].GetType() == typeof(ExcelEmpty)) break;
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
                                     if (range[i + 1, countColumns].GetType() == typeof(ExcelEmpty)) break;
 
@@ -34,9 +36,16 @@ namespace MMA
                                 keyList[j].SetValue(this, mat, null);
                                 i += countRows - 1;
                             }
-                            else
+                            else if (range[i, 1] == ExcelEmpty.Value)
+                                keyList[j].SetValue(this, null, null);
+                            else if (Nullable.GetUnderlyingType(keyList[j].PropertyType) == null)
                             {
                                 var val = Convert.ChangeType(range[i, 1], keyList[j].PropertyType);
+                                keyList[j].SetValue(this, val, null);
+                            }
+                            else
+                            {
+                                var val = Convert.ChangeType(range[i, 1], Nullable.GetUnderlyingType(keyList[j].PropertyType));
                                 keyList[j].SetValue(this, val, null);
                             }
                             break;
@@ -45,6 +54,11 @@ namespace MMA
                         throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + this.GetType().Name);
                 }
             }
+            this.CheckObject();
+        }
+
+        public virtual void CheckObject()
+        {
         }
 
         public object[,] DisplayObject()
@@ -98,18 +112,6 @@ namespace MMA
     {
         public string modelName { get; set; }
         public int extraResults { get; set; }
-    }
-    public class Curve : ExcelObject
-    {
-        public string currency { get; set; }
-        public double rate { get; set; }
-        public class RatesVectors : Vectors
-        {
-            public double[] A { get; set; }
-            public double[] B { get; set; }
-            public double[] C { get; set; }
-        }
-        public RatesVectors rates { get; set; }
     }
     public class Vol : ExcelObject
     {

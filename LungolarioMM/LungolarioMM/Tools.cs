@@ -13,12 +13,12 @@ namespace MMA
                 return name.Substring(0, i);
             return name;
         }
-        public static T[] SubArray<T>(this T[] data, int index, int length)
+       /* public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];
             Array.Copy(data, index, result, 0, length);
             return result;
-        }
+        }*/
     }
 
     //interface to simplify code in ExcelObject.CreateObject and ExcelFunctions.mmDisplayObj
@@ -190,7 +190,7 @@ namespace MMA
                             break;
                         }
                     if (j == keyList.Length)
-                        throw new Exception("Key " + range[i, 0].ToString() + " not available for table " + this.GetType().Name);
+                        throw new Exception("Key " + range[rowStart, colStart + i].ToString() + " not available for table " + this.GetType().Name);
                 }
         }
         public object[,] ObjInfo(object column, object row)
