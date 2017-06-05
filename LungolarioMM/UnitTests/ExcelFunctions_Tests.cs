@@ -14,7 +14,7 @@ namespace MMA.TestCases
             object[,] range = new object[0, 0];
             Assert.AreEqual(ExcelFunctions.mmCreateObj(name, type, range), "A:0");
             name = "B";
-            type = "CURVE";
+            type = "VOL";
             Assert.AreEqual(ExcelFunctions.mmCreateObj(name, type, range), "B:0");
             object[,] result = ExcelFunctions.mmListObjs();
             Assert.AreEqual(result.GetLength(0), 2);
@@ -22,7 +22,7 @@ namespace MMA.TestCases
             Assert.AreEqual(result[0, 0].ToString(), "A");
             Assert.AreEqual(result[0, 1].ToString(), "MODEL");
             Assert.AreEqual(result[1, 0].ToString(), "B");
-            Assert.AreEqual(result[1, 1].ToString(), "CURVE");
+            Assert.AreEqual(result[1, 1].ToString(), "VOL");
         }
     }
 }

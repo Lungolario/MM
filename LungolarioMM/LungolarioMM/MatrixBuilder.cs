@@ -35,10 +35,8 @@ namespace MMA
         }
         public object[,] Deliver(bool isForSaveDown = true)
         {
-            object defaultValue;
-            if (isForSaveDown)
-                defaultValue = "";
-            else
+            object defaultValue = "";
+            if (!isForSaveDown)
                 defaultValue = ExcelEmpty.Value;
             object[,] result = new object[maxRow + 1, maxColumn + 1];
             for (int iRow = 0; iRow < maxRow + 1; iRow++)

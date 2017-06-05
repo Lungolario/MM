@@ -201,12 +201,36 @@ namespace MMA
             return vLoadedObjs;
         }
 
+        [ExcelFunction(Description = "Calculate rate from start to end")]
         public static object mmCurveRate(string objName, double start, double end)
         {
             ExcelObject curveObj = objectHandler.GetObject(objName, "CURVE");
             if (curveObj == null)
                 return "Object not found.";
-            return ((Curve)curveObj).GetRate(start, end);
+            try
+            {
+                return ((Curve)curveObj).GetRate(start, end);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        [ExcelFunction(Description = "Calculate discount factor for time")]
+        public static object mmCurveDF(string objName, double time)
+        {
+            ExcelObject curveObj = objectHandler.GetObject(objName, "CURVE");
+            if (curveObj == null)
+                return "Object not found.";
+            try
+            { 
+                return ((Curve)curveObj).GetDF(time);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
         }
     }
 }
