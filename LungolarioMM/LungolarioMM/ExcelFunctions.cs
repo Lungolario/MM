@@ -119,7 +119,7 @@ namespace MMA
                     try
                     {
                         keyList[i].SetValue(obj, value, null);
-                        return obj.IncreaseCounter().GetNameCounter();
+                        return obj.FinishMod().GetNameCounter();
                     }
                     catch (Exception e)
                     {

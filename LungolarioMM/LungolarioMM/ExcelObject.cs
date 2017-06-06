@@ -100,9 +100,12 @@ namespace MMA
             }
             return this;
         }
-        public ExcelObject IncreaseCounter()
+        public ExcelObject FinishMod()
         {
             counter++;
+            PropertyInfo[] privateProps = GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
+            for (int i = 0; i < privateProps.Length; i++)
+                privateProps[i].SetValue(this, null);
             return this;
         }
         public string GetName() { return this.name; }

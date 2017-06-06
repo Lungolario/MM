@@ -7,7 +7,7 @@ namespace MMA
     public class Curve : ExcelObject
     {
         public string currency { get; set; }
-        public double? rate  { get; set; } = null; 
+        public double? rate { get; set; } = null;
         public class RatesVectors : Vectors
         {
             public double[] start { get; set; }
@@ -22,10 +22,11 @@ namespace MMA
                 throw new Exception("Either field rate or table rates has to be set.");
         }
 
-        private List<KeyValuePair<double, double>> timeLogDF = new List<KeyValuePair<double, double>>();
+        private List<KeyValuePair<double, double>> timeLogDF { get; set; } = null;
 
         private void Bootstrap()
         {
+            timeLogDF = new List<KeyValuePair<double, double>>();
             timeLogDF.Add(new KeyValuePair<double, double>(0, 0));
             for (int i = 0; i < rates.start.Length; i++)
             {
@@ -36,7 +37,7 @@ namespace MMA
         }
         private double GetLogDF(double time)
         {
-            if (timeLogDF.Count == 0)
+            if (timeLogDF == null)
                 this.Bootstrap();
             if (timeLogDF.Exists(kvp => kvp.Key == time))
                 return timeLogDF.First(kvp => kvp.Key == time).Value;

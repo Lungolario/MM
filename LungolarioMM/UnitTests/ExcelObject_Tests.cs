@@ -14,7 +14,7 @@ namespace MMA.TestCases
             obj.CreateObject("C", range);
             Assert.AreEqual(obj.GetNameCounter(), "C:0");
             Assert.AreEqual(obj.GetName(), "C");
-            obj.IncreaseCounter();
+            obj.FinishMod();
             Assert.AreEqual(obj.GetNameCounter(), "C:1");
         }
     }
