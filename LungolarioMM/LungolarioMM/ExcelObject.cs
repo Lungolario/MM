@@ -14,7 +14,7 @@ namespace MMA
             this.name = name;
             if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
             {
-                PropertyInfo[] keyList = this.GetType().GetProperties();
+                FieldInfo[] keyList = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
                 for (int i = 0; i < range.GetLength(0); i++)
                 {
                     if (range[i, 0] == ExcelEmpty.Value)
@@ -23,7 +23,7 @@ namespace MMA
                     for (j = 0; j < keyList.Length; j++)
                         if (range[i, 0].ToString().ToUpper() == keyList[j].Name.ToUpper())
                         {
-                            if (typeof(iMatrix).IsAssignableFrom(keyList[j].PropertyType))
+                            if (typeof(iMatrix).IsAssignableFrom(keyList[j].FieldType))
                             {
                                 int countRows, countColumns;
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
@@ -31,22 +31,22 @@ namespace MMA
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
                                     if (range[i + 1, countColumns].GetType() == typeof(ExcelEmpty)) break;
 
-                                iMatrix mat = (iMatrix)Activator.CreateInstance(keyList[j].PropertyType);
+                                iMatrix mat = (iMatrix)Activator.CreateInstance(keyList[j].FieldType);
                                 mat.CreateMatrix(range, i + 1, countRows - 1, 1, countColumns - 1);
-                                keyList[j].SetValue(this, mat, null);
+                                keyList[j].SetValue(this, mat);
                                 i += countRows - 1;
                             }
                             else if (range[i, 1] == ExcelEmpty.Value)
-                                keyList[j].SetValue(this, null, null);
-                            else if (Nullable.GetUnderlyingType(keyList[j].PropertyType) == null)
+                                keyList[j].SetValue(this, null);
+                            else if (Nullable.GetUnderlyingType(keyList[j].FieldType) == null)
                             {
-                                var val = Convert.ChangeType(range[i, 1], keyList[j].PropertyType);
-                                keyList[j].SetValue(this, val, null);
+                                var val = Convert.ChangeType(range[i, 1], keyList[j].FieldType);
+                                keyList[j].SetValue(this, val);
                             }
                             else
                             {
-                                var val = Convert.ChangeType(range[i, 1], Nullable.GetUnderlyingType(keyList[j].PropertyType));
-                                keyList[j].SetValue(this, val, null);
+                                var val = Convert.ChangeType(range[i, 1], Nullable.GetUnderlyingType(keyList[j].FieldType));
+                                keyList[j].SetValue(this, val);
                             }
                             break;
                         }
@@ -63,16 +63,16 @@ namespace MMA
 
         public object[,] DisplayObject()
         {
-            PropertyInfo[] keyList = this.GetType().GetProperties();
+            FieldInfo[] keyList = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             MatrixBuilder result = new MatrixBuilder();
             for (int i = 0; i < keyList.Length; i++)
-                if (keyList[i].GetValue(this, null) != null)
+                if (keyList[i].GetValue(this) != null)
                 {
                     result.Add(new string[1] { keyList[i].Name }, false, true, false);
-                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                        result.Add(((iMatrix)keyList[i].GetValue(this, null)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
+                    if (typeof(iMatrix).IsAssignableFrom(keyList[i].FieldType))
+                        result.Add(((iMatrix)keyList[i].GetValue(this)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
                     else
-                        result.Add(new object[1] { keyList[i].GetValue(this, null) }, true, false, false);
+                        result.Add(new object[1] { keyList[i].GetValue(this) }, true, false, false);
                 }
             return result.Deliver();
         }
@@ -103,7 +103,7 @@ namespace MMA
         public ExcelObject FinishMod()
         {
             counter++;
-            PropertyInfo[] privateProps = GetType().GetProperties(BindingFlags.NonPublic | BindingFlags.Instance);
+            FieldInfo[] privateProps = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
             for (int i = 0; i < privateProps.Length; i++)
                 privateProps[i].SetValue(this, null);
             return this;
@@ -113,31 +113,31 @@ namespace MMA
     }
     public class Model : ExcelObject
     {
-        public string modelName { get; set; }
-        public int extraResults { get; set; }
+        public string modelName;
+        public int extraResults;
     }
     public class Vol : ExcelObject
     {
-        public string currency { get; set; }
-        public double volatility { get; set; }
+        public string currency;
+        public double volatility;
     }
     public class Results : ExcelObject
     {
-        public double result { get; set; }
+        public double result;
     }
     public class Security : ExcelObject
     {
-        public string currency { get; set; }
-        public double start { get; set; }
+        public string currency;
+        public double start;
     }
     public class Dictionary : ExcelObject
     {
-        public string MODE { get; set; }
-        public string MODEL { get; set; }
-        public string CURVE { get; set; }
-        public string VOL { get; set; }
-        public string SECURITY { get; set; }
-        public string RESULTS { get; set; }
+        public string MODE;
+        public string MODEL;
+        public string CURVE;
+        public string VOL;
+        public string SECURITY;
+        public string RESULTS;
     }
     public class ExcelObjectHandler
     {

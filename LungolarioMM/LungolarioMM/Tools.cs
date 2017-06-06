@@ -156,7 +156,7 @@ namespace MMA
     {
         public void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
-            PropertyInfo[] keyList = this.GetType().GetProperties();
+            FieldInfo[] keyList = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             if (nRows > 1 && nCols > 0)
                 for (int i = 0; i < nCols; i++)
                 {
@@ -166,20 +166,20 @@ namespace MMA
                         {
                             if (range[rowStart + 1, colStart + i] == ExcelEmpty.Value)
                             {
-                                var help = Array.CreateInstance(keyList[j].PropertyType.GetElementType(), 0);
-                                keyList[j].SetValue(this, help, null);
+                                var help = Array.CreateInstance(keyList[j].FieldType.GetElementType(), 0);
+                                keyList[j].SetValue(this, help);
                             }
                             else
                             {
-                                var help = Array.CreateInstance(keyList[j].PropertyType.GetElementType(), nRows - 1);
+                                var help = Array.CreateInstance(keyList[j].FieldType.GetElementType(), nRows - 1);
 
                                 
                                 for (int k = 1; k < nRows; k++)
                                 {
-                                    var value = Convert.ChangeType(range[rowStart + k, colStart + i],keyList[j].PropertyType.GetElementType());
+                                    var value = Convert.ChangeType(range[rowStart + k, colStart + i],keyList[j].FieldType.GetElementType());
                                     help.SetValue(value, k-1);
                                 }
-                                keyList[j].SetValue(this, help, null);
+                                keyList[j].SetValue(this, help);
                             }
                             break;
                         }
@@ -190,7 +190,7 @@ namespace MMA
         public object[,] ObjInfo(object column, object row)
         {
             int iCol, iRow = 0;
-            PropertyInfo[] keyList = this.GetType().GetProperties();
+            FieldInfo[] keyList = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             int nCol = keyList.Length;
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
             {
@@ -199,9 +199,9 @@ namespace MMA
                     header[iCol] = keyList[iCol].Name;
                 MatrixBuilder resi = new MatrixBuilder();
                 resi.Add(header, false, true, true);
-                resi.Add((Array)keyList[0].GetValue(this, null),false,true,false);
+                resi.Add((Array)keyList[0].GetValue(this),false,true,false);
                 for (iCol = 1; iCol < nCol; iCol++)
-                    resi.Add((Array)keyList[iCol].GetValue(this, null), true, false, false);
+                    resi.Add((Array)keyList[iCol].GetValue(this), true, false, false);
                 return resi.Deliver();
             }
             if (column.GetType() == typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
@@ -216,7 +216,7 @@ namespace MMA
                     break;
             if (iCol == nCol)
                 return new string[1, 1] { { "Column " + column.ToString() + " not found!" } };
-            var b = (Array)keyList[iCol].GetValue(this, null);
+            var b = (Array)keyList[iCol].GetValue(this);
             if (b.Length == 0)
                 return new string[1, 1] { { "Column " + column.ToString() + " has not been initialized!" } };
             if (row.GetType() != typeof(ExcelMissing))

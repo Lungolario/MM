@@ -6,15 +6,15 @@ namespace MMA
 {
     public class Curve : ExcelObject
     {
-        public string currency { get; set; }
-        public double? rate { get; set; } = null;
+        public string currency;
+        public double? rate = null;
         public class RatesVectors : Vectors
         {
-            public double[] start { get; set; }
-            public double[] end { get; set; }
-            public double[] contrate { get; set; }
+            public double[] start;
+            public double[] end;
+            public double[] contrate;
         }
-        public RatesVectors rates { get; set; } = null;
+        public RatesVectors rates = null;
 
         public override void CheckObject()
         {

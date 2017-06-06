@@ -88,15 +88,15 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return new string[1, 1] { { "Object not found." } };
-            PropertyInfo[] keyList = obj.GetType().GetProperties();
+            FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             for (int i = 0; i < keyList.Length; i++)
                 if (key.ToUpper() == keyList[i].Name.ToUpper())
                 {
                     try
                     {
-                        if (typeof(iMatrix).IsAssignableFrom(keyList[i].PropertyType))
-                            return ((iMatrix)keyList[i].GetValue(obj, null)).ObjInfo(column, row);
-                        return new string[1, 1] { { keyList[i].GetValue(obj, null).ToString() } };
+                        if (typeof(iMatrix).IsAssignableFrom(keyList[i].FieldType))
+                            return ((iMatrix)keyList[i].GetValue(obj)).ObjInfo(column, row);
+                        return new string[1, 1] { { keyList[i].GetValue(obj).ToString() } };
                     }
                     catch (Exception e)
                     {
@@ -112,13 +112,13 @@ namespace MMA
             ExcelObject obj = objectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
-            PropertyInfo[] keyList = obj.GetType().GetProperties();
+            FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             for (int i = 0; i < keyList.Length; i++)
                 if (key.ToUpper() == keyList[i].Name.ToUpper())
                 {
                     try
                     {
-                        keyList[i].SetValue(obj, value, null);
+                        keyList[i].SetValue(obj, value);
                         return obj.FinishMod().GetNameCounter();
                     }
                     catch (Exception e)
