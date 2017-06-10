@@ -22,50 +22,50 @@ namespace MMA
         }
         public void AutoClose() { }
 
-        static ExcelObjectHandler objectHandler = new ExcelObjectHandler();
+        static readonly ExcelObjectHandler ObjectHandler = new ExcelObjectHandler();
 
         [ExcelFunction(Description = "Creates an object with name and type")]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
             try
             {
-                return objectHandler.CreateObject(objName, objType, range).GetNameCounter();
+                return ObjectHandler.CreateObject(objName, objType, range).GetNameCounter();
             }
             catch (Exception e)
             {
-                return e.Message.ToString();
+                return e.Message;
             }
         }
 
         [ExcelFunction(Description = "Display an object")]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
-            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
-                return new string[1, 1] { { "Object not found." } };
+                return new object[,] { { "Object not found." } };
             return obj.DisplayObject();
         }
 
         [ExcelFunction(Description = "Delete objects")]
         public static string mmDeleteObjs(string name, string type)
         {
-            int i = objectHandler.objList.Count;
+            int i = ObjectHandler.ObjList.Count;
             if (type != "" && name != "")
-                objectHandler.objList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
+                ObjectHandler.ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
             else if (type != "")
-                objectHandler.objList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
+                ObjectHandler.ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
-                objectHandler.objList.Clear();
-            i -= objectHandler.objList.Count;
+                ObjectHandler.ObjList.Clear();
+            i -= ObjectHandler.ObjList.Count;
             return "Deleted " + i + " object(s).";
         }
 
         [ExcelFunction(Description = "List all objects")]
         public static object[,] mmListObjs()
         {
-            string[,] results = new string[objectHandler.objList.Count, 2];
+            object[,] results = new object[ObjectHandler.ObjList.Count, 2];
             int j = 0;
-            foreach (var obj in objectHandler.objList)
+            foreach (var obj in ObjectHandler.ObjList)
             {
                 results[j, 0] = obj.GetName();
                 results[j++, 1] = obj.GetType().Name.ToUpper();
@@ -76,7 +76,7 @@ namespace MMA
         [ExcelFunction(Description = "Get the instance of an object")]
         public static string mmGetObj(string objName, string objType)
         {
-            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
             return obj.GetNameCounter();
@@ -85,45 +85,45 @@ namespace MMA
         [ExcelFunction(Description = "Get the value of a key of an object")]
         public static object[,] mmGetObjInfo(string objName, string objType, string key, object column, object row)
         {
-            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
-                return new string[1, 1] { { "Object not found." } };
+                return new object[,] { { "Object not found." } };
             FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            for (int i = 0; i < keyList.Length; i++)
-                if (key.ToUpper() == keyList[i].Name.ToUpper())
+            foreach (var keyL in keyList)
+                if (key.ToUpper() == keyL.Name.ToUpper())
                 {
                     try
                     {
-                        if (typeof(iMatrix).IsAssignableFrom(keyList[i].FieldType))
-                            return ((iMatrix)keyList[i].GetValue(obj)).ObjInfo(column, row);
-                        return new string[1, 1] { { keyList[i].GetValue(obj).ToString() } };
+                        if (typeof(IIMatrix).IsAssignableFrom(keyL.FieldType))
+                            return ((IIMatrix)keyL.GetValue(obj)).ObjInfo(column, row);
+                        return new object[,] { { keyL.GetValue(obj).ToString() } };
                     }
                     catch (Exception e)
                     {
-                        return new string[1, 1] { { e.Message.ToString() } };
+                        return new object[,] { { e.Message } };
                     }
                 }
-            return new string[1, 1] { { "Object found, key not found." } };
+            return new object[,] { { "Object found, key not found." } };
         }
 
         [ExcelFunction(Description = "Modify an object")]
         public static string mmModifyObj(string objName, string objType, string key, object value)
         {
-            ExcelObject obj = objectHandler.GetObject(objName, objType);
+            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
             FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            for (int i = 0; i < keyList.Length; i++)
-                if (key.ToUpper() == keyList[i].Name.ToUpper())
+            foreach (var keyL in keyList)
+                if (key.ToUpper() == keyL.Name.ToUpper())
                 {
                     try
                     {
-                        keyList[i].SetValue(obj, value);
+                        keyL.SetValue(obj, value);
                         return obj.FinishMod().GetNameCounter();
                     }
                     catch (Exception e)
                     {
-                        return e.Message.ToString();
+                        return e.Message;
                     }
                 }
             return "Object found, key not found.";
@@ -137,9 +137,9 @@ namespace MMA
                 return "objNames and objTypes must be Vectors of the same length!";
             for (int iObj = 0; iObj < objNames.GetLength(0); iObj++)
             {
-                ExcelObject obj = objectHandler.GetObject(objNames[iObj, 0].ToString(), objTypes[iObj, 0].ToString());
+                ExcelObject obj = ObjectHandler.GetObject(objNames[iObj, 0].ToString(), objTypes[iObj, 0].ToString());
                 if (obj == null)
-                    return "Object " + objNames[iObj, 0].ToString() + " of type " + objTypes[iObj, 0].ToString() + "does not exist!";
+                    return "Object " + objNames[iObj, 0] + " of type " + objTypes[iObj, 0] + "does not exist!";
                 resultData += obj.ObjectSerialize() + "\r\n";
             }
             try
@@ -148,21 +148,22 @@ namespace MMA
             }
             catch (Exception e)
             {
-                return e.Message.ToString();
+                return e.Message;
             }
-            return objNames.GetLength(0).ToString() + " object(s) was/were saved!";
+            return objNames.GetLength(0) + " object(s) was/were saved!";
         }
 
         [ExcelFunction(Description = "Load all objects from file")]
         public static object[,] mmLoadObjs(string location)
         {
             if (!File.Exists(location))
-                return new string[1, 1] { { "File not found." } };
+                return new object[,] { { "File not found." } };
             string[] fileText = File.ReadAllLines(location);
             string name = "", type = "";
             List<string> loadedObjs = new List<string>();
-            for (int iLine = 0, iObj = 0, iObjLine = 0; iLine < fileText.Length; iLine++, iObj++)
+            for (int iLine = 0; iLine < fileText.Length; iLine++)
             {
+                int iObjLine;
                 MatrixBuilder mRange = new MatrixBuilder();
                 for (iObjLine = iLine; iObjLine < fileText.Length; iObjLine++)
                 {
@@ -170,13 +171,13 @@ namespace MMA
                     if (iObjLine == iLine)
                     {
                         if (!lineFields[0].StartsWith("NEW"))
-                            return new string[1, 1] { { "File not in correct format at line " + iObjLine } };
+                            return new object[,] { { "File not in correct format at line " + iObjLine } };
                         type = lineFields[0].Substring(3);
                     }
                     else if (iObjLine == iLine + 1)
                     {
-                        if (!(lineFields[0] == "name"))
-                            return new string[1, 1] { { "File not in correct format at line " + iObjLine } };
+                        if (lineFields[0] != "name")
+                            return new object[,] { { "File not in correct format at line " + iObjLine } };
                         name = lineFields[1];
                     }
                     else if (lineFields.Length < 2)
@@ -186,11 +187,11 @@ namespace MMA
                 }
                 try
                 {
-                    loadedObjs.Add(objectHandler.CreateObject(name, type, mRange.Deliver(false)).GetNameCounter().ToString());
+                    loadedObjs.Add(ObjectHandler.CreateObject(name, type, mRange.Deliver(false)).GetNameCounter());
                 }
                 catch (Exception e)
                 {
-                    return new string[1, 1] { { "Error when generating object " + name + " of type " + type + ". " + e.Message.ToString() } };
+                    return new object[,] { { "Error when generating object " + name + " of type " + type + ". " + e.Message} };
                 }
                 iLine = iObjLine;
             }
@@ -204,7 +205,7 @@ namespace MMA
         [ExcelFunction(Description = "Calculate rate from start to end")]
         public static object mmCurveRate(string objName, double start, double end)
         {
-            ExcelObject curveObj = objectHandler.GetObject(objName, "CURVE");
+            ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
             if (curveObj == null)
                 return "Object not found.";
             try
@@ -220,7 +221,7 @@ namespace MMA
         [ExcelFunction(Description = "Calculate discount factor for time")]
         public static object mmCurveDF(string objName, double time)
         {
-            ExcelObject curveObj = objectHandler.GetObject(objName, "CURVE");
+            ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
             if (curveObj == null)
                 return "Object not found.";
             try

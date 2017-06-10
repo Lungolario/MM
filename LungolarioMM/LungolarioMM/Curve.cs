@@ -22,39 +22,41 @@ namespace MMA
                 throw new Exception("Either field rate or table rates has to be set.");
         }
 
-        private List<KeyValuePair<double, double>> timeLogDF { get; set; } = null;
+        private List<KeyValuePair<double, double>> timeLogDF;
 
         private void Bootstrap()
         {
-            timeLogDF = new List<KeyValuePair<double, double>>();
-            timeLogDF.Add(new KeyValuePair<double, double>(0, 0));
-            for (int i = 0; i < rates.start.Length; i++)
-            {
-                if (rates.start[i] > timeLogDF.Max(kvp => kvp.Key))
-                    throw new Exception("StartDate for instrument " + i + " after previous maximum enddate.");
-                timeLogDF.Add(new KeyValuePair<double, double>(rates.end[i], GetLogDF(rates.start[i]) - rates.contrate[i] * (rates.end[i] - rates.start[i])));
-            }
+            timeLogDF = new List<KeyValuePair<double, double>>{ new KeyValuePair<double, double>(0, 0) };
+            if (rate != null)
+                timeLogDF.Add(new KeyValuePair<double, double>(1000, -(double)rate * 1000));
+            else
+                for (int i = 0; i < rates.start.Length; i++)
+                {
+                    if (rates.start[i] > timeLogDF.Max(kvp => kvp.Key))
+                        throw new Exception("StartDate for instrument " + i + " after previous maximum enddate.");
+                    timeLogDF.Add(new KeyValuePair<double, double>(rates.end[i], GetLogDF(rates.start[i]) - rates.contrate[i] * (rates.end[i] - rates.start[i])));
+                    timeLogDF.Sort((x,y) => x.Key.CompareTo(y.Key));
+                }
         }
         private double GetLogDF(double time)
         {
             if (timeLogDF == null)
-                this.Bootstrap();
+                Bootstrap();
+            if (time > timeLogDF.Max(kvp => kvp.Key))
+                throw new Exception("Date " + time + " is after last date of bootstrapped curve!");
             if (timeLogDF.Exists(kvp => kvp.Key == time))
                 return timeLogDF.First(kvp => kvp.Key == time).Value;
-            KeyValuePair<double, double> before = timeLogDF.Where(kvp => kvp.Key < time).Last();
-            KeyValuePair<double, double> after = timeLogDF.Where(kvp => kvp.Key > time).First();
+            KeyValuePair<double, double> before = timeLogDF.Last(kvp => kvp.Key < time);
+            KeyValuePair<double, double> after = timeLogDF.First(kvp => kvp.Key > time);
             return ((time - before.Key) * after.Value + (after.Key - time) * before.Value) / (after.Key - before.Key);
         }
+
         public double GetDF(double time)
         {
-            if (rate != null)
-                return Math.Exp(- (double)rate * time);
             return Math.Exp(GetLogDF(time));
         }
         public double GetRate(double start, double end)
         {
-            if (rate != null)
-                return (double)rate;
             return (GetLogDF(start) - GetLogDF(end)) / (end - start);
         }
     }

@@ -1,6 +1,6 @@
 using System;
-using ExcelDna.Integration;
 using System.Reflection;
+using ExcelDna.Integration;
 
 namespace MMA
 {
@@ -8,7 +8,7 @@ namespace MMA
     {
         public static string StringTrim(string name)
         {
-            int i = name.IndexOf(":");
+            var i = name.IndexOf(":", StringComparison.CurrentCulture);
             if (i > -1)
                 return name.Substring(0, i);
             return name;
@@ -16,149 +16,156 @@ namespace MMA
     }
 
     //interface to simplify code in ExcelObject.CreateObject and ExcelFunctions.mmDisplayObj
-    public interface iMatrix
+    public interface IIMatrix
     {
         void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols);
         object[,] ObjInfo(object column, object row);
     }
-    public class Matrix<T> : iMatrix
+
+    public class Matrix<T> : IIMatrix
     {
+        protected T[,] Content;
+
         public virtual void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
-            content = new T[nRows, nCols];
-            for (int iRow = 0; iRow < nRows; iRow++)
-                for (int iCol = 0; iCol < nCols; iCol++)
+            Content = new T[nRows, nCols];
+            for (var iRow = 0; iRow < nRows; iRow++)
+            for (var iCol = 0; iCol < nCols; iCol++)
+                try
                 {
-                    try
-                    {
-                        content[iRow, iCol] = (T)range[rowStart + iRow, colStart + iCol];
-                    }
-                    catch (Exception e)
-                    {
-                        throw new Exception(e.Message.ToString() + " Error in cell (" + (rowStart+iRow) + "," + (colStart + iCol) + ") of range.");
-                    }
+                    Content[iRow, iCol] = (T) range[rowStart + iRow, colStart + iCol];
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message + " Error in cell (" + (rowStart + iRow) + "," + (colStart + iCol) +
+                                        ") of range.");
                 }
         }
+
         public virtual object[,] ObjInfo(object column, object row)
         {
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
-                return (object[,])(object)content;
+                return (object[,]) (object) Content;
             if (column.GetType() == typeof(ExcelMissing))
             {
-                object[,] result = new object[1, content.GetLength(1)];
-                for (int i = 0; i < content.GetLength(1); i++)
-                    result[0, i] = content[Convert.ToInt32(row), i];
+                var result = new object[1, Content.GetLength(1)];
+                for (var i = 0; i < Content.GetLength(1); i++)
+                    result[0, i] = Content[Convert.ToInt32(row), i];
                 return result;
             }
             if (row.GetType() == typeof(ExcelMissing))
             {
-                object[,] result = new object[content.GetLength(0), 1];
-                for (int i = 0; i < content.GetLength(0); i++)
-                    result[i, 0] = content[i, Convert.ToInt32(column)];
+                var result = new object[Content.GetLength(0), 1];
+                for (var i = 0; i < Content.GetLength(0); i++)
+                    result[i, 0] = Content[i, Convert.ToInt32(column)];
                 return result;
             }
-            return new object[1, 1] { { content[Convert.ToInt32(row), Convert.ToInt32(column)] } } ;
+            return new object[,] {{Content[Convert.ToInt32(row), Convert.ToInt32(column)]}};
         }
-        protected T[,] content;
     }
-    public class MatrixH<T, HR> : Matrix<T>
+
+    public class MatrixH<T, T_HR> : Matrix<T>
     {
+        protected T_HR[] ColumnHeaders;
+
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
             base.CreateMatrix(range, rowStart + 1, nRows - 1, colStart, nCols);
-            columnHeaders = new HR[nCols];
-            for (int iCol = 0; iCol < nCols; iCol++)
-            {
+            ColumnHeaders = new T_HR[nCols];
+            for (var iCol = 0; iCol < nCols; iCol++)
                 try
                 {
-                    columnHeaders[iCol] = (HR)range[rowStart, colStart + iCol];
+                    ColumnHeaders[iCol] = (T_HR) range[rowStart, colStart + iCol];
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(e.Message.ToString() + " Error in cell (" + rowStart + "," + (colStart + iCol) + ") of range.");
+                    throw new Exception(e.Message + " Error in cell (" + rowStart + "," + (colStart + iCol) +
+                                        ") of range.");
                 }
-            }
         }
+
         public override object[,] ObjInfo(object column, object row)
         {
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
             {
-                MatrixBuilder result = new MatrixBuilder();
-                result.Add(columnHeaders, false, true, true);
-                result.Add(content, false, true, false);
+                var result = new MatrixBuilder();
+                result.Add(ColumnHeaders, false, true, true);
+                result.Add(Content, false, true, false);
                 return result.Deliver();
             }
             if (row.GetType() != typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
             {
-                MatrixBuilder result = new MatrixBuilder();
-                result.Add(columnHeaders, false, true, true);
+                var result = new MatrixBuilder();
+                result.Add(ColumnHeaders, false, true, true);
                 return result.Deliver();
             }
-            return base.ObjInfo(FindHeader(column, columnHeaders, "Column"), row);
+            return base.ObjInfo(FindHeader(column, ColumnHeaders, "Column"), row);
         }
-        public object FindHeader(object index, HR[] header, string name)
+
+        public object FindHeader(object index, T_HR[] header, string name)
         {
             if (index.GetType() == typeof(ExcelMissing))
                 return index;
-            for (int i = 0; i < header.GetLength(0); i++)
-                if (index.Equals((object)header[i]))
+            for (var i = 0; i < header.GetLength(0); i++)
+                if (index.Equals(header[i]))
                     return i;
             throw new Exception(name + " Header not found.");
         }
-        protected HR[] columnHeaders;
     }
-    public class MatrixHR<T, HR> : MatrixH<T, HR>
+
+    public class MatrixHR<T, T_HR> : MatrixH<T, T_HR>
     {
+        protected T_HR[] RowHeaders;
+        protected string UpperLeft;
+
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
             base.CreateMatrix(range, rowStart, nRows, colStart + 1, nCols - 1);
-            rowHeaders = new HR[nRows - 1];
-            for (int iRow = 1; iRow < nRows; iRow++)
-            {
+            RowHeaders = new T_HR[nRows - 1];
+            for (var iRow = 1; iRow < nRows; iRow++)
                 try
                 {
-                    rowHeaders[iRow - 1] = (HR)range[rowStart + iRow, colStart];
+                    RowHeaders[iRow - 1] = (T_HR) range[rowStart + iRow, colStart];
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(e.Message.ToString() + " Error in cell (" + (rowStart + iRow) + "," + colStart + ") of range.");
+                    throw new Exception(e.Message + " Error in cell (" + (rowStart + iRow) + "," + colStart +
+                                        ") of range.");
                 }
-            }
-            upperLeft = range[rowStart, colStart].ToString();
+            UpperLeft = range[rowStart, colStart].ToString();
         }
+
         public override object[,] ObjInfo(object column, object row)
         {
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
             {
-                MatrixBuilder result = new MatrixBuilder();
-                result.Add(new string[1, 1] { { upperLeft } },false,true,false);
-                result.Add(columnHeaders, true, false, true);
-                result.Add(rowHeaders, false, true, false);
-                result.Add(content, true, false, false);
+                var result = new MatrixBuilder();
+                result.Add(new object[,] {{UpperLeft}}, false, true, false);
+                result.Add(ColumnHeaders, true, false, true);
+                result.Add(RowHeaders, false, true, false);
+                result.Add(Content, true, false, false);
                 return result.Deliver();
             }
             if (Convert.ToInt32(column) == -1 && Convert.ToInt32(row) == -1)
-                return new string[1, 1] { { upperLeft } };
+                return new object[,] {{UpperLeft}};
             if (Convert.ToInt32(column) == -1 && row.GetType() == typeof(ExcelMissing))
             {
-                object[,] result = new object[content.GetLength(0), 1];
-                for (int iRow = 0; iRow < content.GetLength(0); iRow++)
-                    result[iRow, 0] = rowHeaders[iRow];
+                var result = new object[Content.GetLength(0), 1];
+                for (var iRow = 0; iRow < Content.GetLength(0); iRow++)
+                    result[iRow, 0] = RowHeaders[iRow];
                 return result;
             }
-            return base.ObjInfo(column, FindHeader(row, rowHeaders, "Row"));
+            return base.ObjInfo(column, FindHeader(row, RowHeaders, "Row"));
         }
-        protected HR[] rowHeaders;
-        protected string upperLeft;
     }
 
-    public abstract class Vectors : iMatrix
+    public abstract class Vectors : IIMatrix
     {
         public void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
-            FieldInfo[] keyList = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             if (nRows > 1 && nCols > 0)
-                for (int i = 0; i < nCols; i++)
+                for (var i = 0; i < nCols; i++)
                 {
                     int j;
                     for (j = 0; j < keyList.Length; j++)
@@ -173,40 +180,43 @@ namespace MMA
                             {
                                 var help = Array.CreateInstance(keyList[j].FieldType.GetElementType(), nRows - 1);
 
-                                
-                                for (int k = 1; k < nRows; k++)
+
+                                for (var k = 1; k < nRows; k++)
                                 {
-                                    var value = Convert.ChangeType(range[rowStart + k, colStart + i],keyList[j].FieldType.GetElementType());
-                                    help.SetValue(value, k-1);
+                                    var value = Convert.ChangeType(range[rowStart + k, colStart + i],
+                                        keyList[j].FieldType.GetElementType());
+                                    help.SetValue(value, k - 1);
                                 }
                                 keyList[j].SetValue(this, help);
                             }
                             break;
                         }
                     if (j == keyList.Length)
-                        throw new Exception("Key " + range[rowStart, colStart + i].ToString() + " not available for table " + this.GetType().Name);
+                        throw new Exception("Key " + range[rowStart, colStart + i] + " not available for table " +
+                                            GetType().Name);
                 }
         }
+
         public object[,] ObjInfo(object column, object row)
         {
-            int iCol, iRow = 0;
-            FieldInfo[] keyList = this.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            int nCol = keyList.Length;
+            int iCol;
+            var keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var nCol = keyList.Length;
             if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
             {
-                string[] header = new string[nCol];
+                var header = new string[nCol];
                 for (iCol = 0; iCol < nCol; iCol++)
                     header[iCol] = keyList[iCol].Name;
-                MatrixBuilder resi = new MatrixBuilder();
+                var resi = new MatrixBuilder();
                 resi.Add(header, false, true, true);
-                resi.Add((Array)keyList[0].GetValue(this),false,true,false);
+                resi.Add((Array) keyList[0].GetValue(this), false, true, false);
                 for (iCol = 1; iCol < nCol; iCol++)
-                    resi.Add((Array)keyList[iCol].GetValue(this), true, false, false);
+                    resi.Add((Array) keyList[iCol].GetValue(this), true, false, false);
                 return resi.Deliver();
             }
             if (column.GetType() == typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
             {
-                object[,] result2 = new object[1, nCol];
+                var result2 = new object[1, nCol];
                 for (iCol = 0; iCol < nCol; iCol++)
                     result2[0, iCol] = keyList[iCol].Name;
                 return result2;
@@ -215,14 +225,14 @@ namespace MMA
                 if (keyList[iCol].Name.Equals(column))
                     break;
             if (iCol == nCol)
-                return new string[1, 1] { { "Column " + column.ToString() + " not found!" } };
-            var b = (Array)keyList[iCol].GetValue(this);
+                return new object[,] {{"Column " + column + " not found!"}};
+            var b = (Array) keyList[iCol].GetValue(this);
             if (b.Length == 0)
-                return new string[1, 1] { { "Column " + column.ToString() + " has not been initialized!" } };
+                return new object[,] {{"Column " + column + " has not been initialized!"}};
             if (row.GetType() != typeof(ExcelMissing))
-                return new object[1, 1] { { b.GetValue(Convert.ToInt32(row))} };
-            object[,] result = new object[b.Length, 1];
-            for (iRow = 0; iRow < b.Length; iRow++)
+                return new[,] {{b.GetValue(Convert.ToInt32(row))}};
+            var result = new object[b.Length, 1];
+            for (int iRow = 0; iRow < b.Length; iRow++)
                 result[iRow, 0] = b.GetValue(iRow);
             return result;
         }

@@ -6,31 +6,31 @@ namespace MMA
 {
     public class MatrixBuilder
     {
-        private List<MBHelp> matrices = new List<MBHelp>();
-        private int upperLeftRow = -1;
-        private int upperLeftColumn = -1;
-        private int lowerRightRow = -1;
-        private int lowerRightColumn = -1;
-        private int maxColumn = -1;
-        private int maxRow = -1;
+        private readonly List<MBHelp> _matrices = new List<MBHelp>();
+        private int _upperLeftRow = -1;
+        private int _upperLeftColumn = -1;
+        private int _lowerRightRow = -1;
+        private int _lowerRightColumn = -1;
+        private int _maxColumn = -1;
+        private int _maxRow = -1;
 
         public MatrixBuilder Add(Array field, bool right, bool below, bool transpose)
         {
-            if (below || maxRow < 0) upperLeftRow = maxRow + 1;
-            upperLeftColumn = right ? lowerRightColumn + 1 : 0;
+            if (below || _maxRow < 0) _upperLeftRow = _maxRow + 1;
+            _upperLeftColumn = right ? _lowerRightColumn + 1 : 0;
             if (field.Rank == 2)
             {
-                lowerRightRow = upperLeftRow + field.GetLength(transpose ? 1 : 0) - 1;
-                lowerRightColumn = upperLeftColumn + field.GetLength(transpose ? 0 : 1) - 1;
+                _lowerRightRow = _upperLeftRow + field.GetLength(transpose ? 1 : 0) - 1;
+                _lowerRightColumn = _upperLeftColumn + field.GetLength(transpose ? 0 : 1) - 1;
             }
             else
             {
-                lowerRightRow = upperLeftRow + (transpose ? 1 : field.Length) - 1;
-                lowerRightColumn = upperLeftColumn + (transpose ? field.Length : 1) - 1;
+                _lowerRightRow = _upperLeftRow + (transpose ? 1 : field.Length) - 1;
+                _lowerRightColumn = _upperLeftColumn + (transpose ? field.Length : 1) - 1;
             }
-            maxColumn = Math.Max(maxColumn, lowerRightColumn);
-            maxRow = Math.Max(maxRow, lowerRightRow);
-            matrices.Add(new MBHelp(field, upperLeftRow, upperLeftColumn, transpose));
+            _maxColumn = Math.Max(_maxColumn, _lowerRightColumn);
+            _maxRow = Math.Max(_maxRow, _lowerRightRow);
+            _matrices.Add(new MBHelp(field, _upperLeftRow, _upperLeftColumn, transpose));
             return this;
         }
         public object[,] Deliver(bool isForSaveDown = true)
@@ -38,56 +38,56 @@ namespace MMA
             object defaultValue = "";
             if (!isForSaveDown)
                 defaultValue = ExcelEmpty.Value;
-            object[,] result = new object[maxRow + 1, maxColumn + 1];
-            for (int iRow = 0; iRow < maxRow + 1; iRow++)
-                for (int iCol = 0; iCol < maxColumn + 1; iCol++)
+            object[,] result = new object[_maxRow + 1, _maxColumn + 1];
+            for (int iRow = 0; iRow < _maxRow + 1; iRow++)
+                for (int iCol = 0; iCol < _maxColumn + 1; iCol++)
                     result[iRow, iCol] = defaultValue;
-            foreach (MBHelp field in matrices)
+            foreach (MBHelp field in _matrices)
                 field.Fill(ref result);
             return result;
         }
         private class MBHelp
         {
-            private Array field;
-            private int upperLeftRow;
-            private int upperLeftColumn;
-            private bool transpose;
+            private readonly Array _field;
+            private readonly int _upperLeftRow;
+            private readonly int _upperLeftColumn;
+            private readonly bool _transpose;
             public MBHelp(Array field, int upperLeftRow, int upperLeftColumn, bool transpose)
             {
-                this.field = field;
-                this.upperLeftRow = upperLeftRow;
-                this.upperLeftColumn = upperLeftColumn;
-                this.transpose = transpose;
+                _field = field;
+                _upperLeftRow = upperLeftRow;
+                _upperLeftColumn = upperLeftColumn;
+                _transpose = transpose;
             }
             public void Fill(ref object[,] result)
             {
-                if (field.Rank == 1)
+                if (_field.Rank == 1)
                 {
-                    if (transpose)
+                    if (_transpose)
                     {
-                        for (int iCol = 0; iCol < field.Length; iCol++)
-                            if (field.GetValue(iCol).ToString() != "")
-                                result[upperLeftRow, upperLeftColumn + iCol] = field.GetValue(iCol);
+                        for (int iCol = 0; iCol < _field.Length; iCol++)
+                            if (_field.GetValue(iCol).ToString() != "")
+                                result[_upperLeftRow, _upperLeftColumn + iCol] = _field.GetValue(iCol);
                     }
                     else
-                        for (int iRow = 0; iRow < field.Length; iRow++)
-                            if (field.GetValue(iRow).ToString() != "")
-                                result[upperLeftRow + iRow, upperLeftColumn] = field.GetValue(iRow);
+                        for (int iRow = 0; iRow < _field.Length; iRow++)
+                            if (_field.GetValue(iRow).ToString() != "")
+                                result[_upperLeftRow + iRow, _upperLeftColumn] = _field.GetValue(iRow);
                 }
                 else
                 {
-                    if (transpose)
+                    if (_transpose)
                     {
-                        for (int iCol = 0; iCol < field.GetLength(0); iCol++)
-                            for (int iRow = 0; iRow < field.GetLength(1); iRow++)
-                                if (field.GetValue(new int[2] { iCol, iRow }).ToString() != "")
-                                    result[upperLeftRow + iRow, upperLeftColumn + iCol] = field.GetValue(new int[2] { iCol, iRow });
+                        for (int iCol = 0; iCol < _field.GetLength(0); iCol++)
+                            for (int iRow = 0; iRow < _field.GetLength(1); iRow++)
+                                if (_field.GetValue(new[] { iCol, iRow }).ToString() != "")
+                                    result[_upperLeftRow + iRow, _upperLeftColumn + iCol] = _field.GetValue(new[] { iCol, iRow });
                     }
                     else
-                        for (int iCol = 0; iCol < field.GetLength(1); iCol++)
-                            for (int iRow = 0; iRow < field.GetLength(0); iRow++)
-                                if (field.GetValue(new int[2] { iRow, iCol }).ToString() != "")
-                                    result[upperLeftRow + iRow, upperLeftColumn + iCol] = field.GetValue(new int[2] { iRow, iCol });
+                        for (int iCol = 0; iCol < _field.GetLength(1); iCol++)
+                            for (int iRow = 0; iRow < _field.GetLength(0); iRow++)
+                                if (_field.GetValue(new[] { iRow, iCol }).ToString() != "")
+                                    result[_upperLeftRow + iRow, _upperLeftColumn + iCol] = _field.GetValue(new[] { iRow, iCol });
                 }
             }
         }
