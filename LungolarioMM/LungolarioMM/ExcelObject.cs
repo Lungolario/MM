@@ -27,9 +27,9 @@ namespace MMA
                             {
                                 int countRows, countColumns;
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
-                                    if (range[countRows + i, 0].GetType() != typeof(ExcelEmpty) || range[countRows + i, 1].GetType() == typeof(ExcelEmpty)) break;
+                                    if (range[countRows + i, 0] != ExcelEmpty.Value || range[countRows + i, 1] == ExcelEmpty.Value) break;
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
-                                    if (range[i + 1, countColumns].GetType() == typeof(ExcelEmpty)) break;
+                                    if (range[i + 1, countColumns] == ExcelEmpty.Value) break;
 
                                 IIMatrix mat = (IIMatrix)Activator.CreateInstance(keyList[j].FieldType);
                                 mat.CreateMatrix(range, i + 1, countRows - 1, 1, countColumns - 1);
@@ -43,8 +43,13 @@ namespace MMA
                                 var val = Convert.ChangeType(range[i, 1], keyList[j].FieldType);
                                 keyList[j].SetValue(this, val);
                             }
-                            else
+                            else if (Nullable.GetUnderlyingType(keyList[j].FieldType).BaseType.Name == "Enum")
                             {
+                                var val = Enum.Parse(Nullable.GetUnderlyingType(keyList[j].FieldType), range[i, 1].ToString(), true);
+                                keyList[j].SetValue(this, val);
+                            }
+                            else
+                            { 
                                 var val = Convert.ChangeType(range[i, 1], Nullable.GetUnderlyingType(keyList[j].FieldType));
                                 keyList[j].SetValue(this, val);
                             }
