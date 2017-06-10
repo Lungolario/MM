@@ -113,22 +113,22 @@ namespace MMA
     }
     public class Model : ExcelObject
     {
-        public string modelName;
-        public int extraResults;
+        public string ModelName;
+        public int ExtraResults;
     }
     public class Vol : ExcelObject
     {
-        public string currency;
-        public double volatility;
+        public string Currency;
+        public double Volatility;
     }
     public class Results : ExcelObject
     {
-        public double result;
+        public double Result;
     }
     public class Security : ExcelObject
     {
-        public string currency;
-        public double start;
+        public string Currency;
+        public double Start;
     }
     public class Dictionary : ExcelObject
     {

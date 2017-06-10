@@ -10,13 +10,13 @@ namespace MMA
 {
     public class ExcelFunctions : IExcelAddIn
     {
-        private static DateTime EXPIRY_DATE = new DateTime(2018, 05, 15);
+        private static DateTime _expiryDate = new DateTime(2018, 05, 15);
 
         public void AutoOpen()
         {
-            if (EXPIRY_DATE < DateTime.Today)
+            if (_expiryDate < DateTime.Today)
             {
-                MessageBox.Show("The XLL has expired on " + EXPIRY_DATE.ToLongDateString(), "XLL expired");
+                MessageBox.Show("The XLL has expired on " + _expiryDate.ToLongDateString(), "XLL expired");
                 throw new Exception("XLL expired");
             }
         }
@@ -202,7 +202,7 @@ namespace MMA
             return vLoadedObjs;
         }
 
-        [ExcelFunction(Description = "Calculate rate from start to end")]
+        [ExcelFunction(Description = "Calculate rate from Start to End")]
         public static object mmCurveRate(string objName, double start, double end)
         {
             ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
