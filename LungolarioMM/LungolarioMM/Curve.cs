@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,40 +17,64 @@ namespace MMA
         }
         public RatesVectors Rates = null;
         public enum BootStrapEnum {Normal, Reverse};
-        public BootStrapEnum? BootStrap = null;
+        public BootStrapEnum BootStrap;
 
-        public override void CheckObject()
+        protected override void CheckObject()
         {
             if (!(Rate == null ^ Rates == null))
                 throw new Exception("Either field Rate or table Rates has to be set.");
         }
 
-        private SortedList<double, double> _timeLogDF;
+        public SortedList _timeLogDF;
 
         private void Bootstrap()
         {
-            _timeLogDF = new SortedList<double, double>{{0,0}};
             if (Rate != null)
-                _timeLogDF.Add(1000, -(double)Rate * 1000);
+            {
+                _timeLogDF = new SortedList {{0.0, 0.0}, { 1000, -(double)Rate * 1000 } };
+                return;
+            }
+            int i = 0;
+            if (BootStrap == BootStrapEnum.Reverse)
+                for (; i < Rates.Start.Length - 1; i++)
+                    if (Rates.Start[i + 1].Equals(0) || Rates.Start[i + 1].Equals(Rates.End[i]))
+                        break;
+            if (i == 0)
+                _timeLogDF = new SortedList { { 0.0, 0.0 } };
             else
-                for (int i = 0; i < Rates.Start.Length; i++)
-                {
-                    if (Rates.Start[i] > _timeLogDF.Max(kvp => kvp.Key))
-                        throw new Exception("StartDate for instrument " + i + " after previous maximum enddate.");
-                    _timeLogDF.Add(Rates.End[i], GetLogDF(Rates.Start[i]) - Rates.ContRate[i] * (Rates.End[i] - Rates.Start[i]));
-                }
+            {
+                _timeLogDF = new SortedList { { Rates.End[i], 0.0 } };
+                for (int j = i; j >= 0; j--)
+                    _timeLogDF.Add(Rates.Start[j],
+                        GetLogDF(Rates.End[j]) + Rates.ContRate[j] * (Rates.End[j] - Rates.Start[j]));
+                double adjustToZero = GetLogDF(0);
+                var a = _timeLogDF.Values;
+                for (int j = 0; j < _timeLogDF.Count; j++)
+                    _timeLogDF.SetByIndex(j, (double)_timeLogDF.GetByIndex(j) - adjustToZero);
+                i++;
+            }
+            for (; i < Rates.Start.Length; i++)
+                _timeLogDF.Add(Rates.End[i], GetLogDF(Rates.Start[i]) - Rates.ContRate[i] * (Rates.End[i] - Rates.Start[i]));
         }
         private double GetLogDF(double time)
         {
             if (_timeLogDF == null)
                 Bootstrap();
-            if (time > _timeLogDF.Max(kvp => kvp.Key))
+            if (time > (double)_timeLogDF.GetKey(_timeLogDF.Count - 1))
                 throw new Exception("Date " + time + " is after last date of bootstrapped curve!");
+            if (time < (double)_timeLogDF.GetKey(0))
+                throw new Exception("Date " + time + " is before first date during reverse bootstrapping of curve!");
             if (_timeLogDF.ContainsKey(time))
-                return _timeLogDF.First(kvp => kvp.Key.Equals(time)).Value;
-            KeyValuePair<double, double> before = _timeLogDF.Last(kvp => kvp.Key < time);
-            KeyValuePair<double, double> after = _timeLogDF.First(kvp => kvp.Key > time);
-            return ((time - before.Key) * after.Value + (after.Key - time) * before.Value) / (after.Key - before.Key);
+                return (double)_timeLogDF[time];
+            int index = 0;
+            for (; index < _timeLogDF.Count; index++)
+                if ((double) _timeLogDF.GetKey(index) > time)
+                    break;
+            double beforeTime = (double)_timeLogDF.GetKey(index - 1);
+            double afterTime = (double)_timeLogDF.GetKey(index);
+            double beforeLogDF = (double)_timeLogDF.GetByIndex(index - 1);
+            double afterLogDF = (double)_timeLogDF.GetByIndex(index);
+            return ((time - beforeTime) * afterLogDF + (afterTime - time) * beforeLogDF) / (afterTime - beforeTime);
         }
 
         public double GetDF(double time)

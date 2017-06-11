@@ -38,20 +38,22 @@ namespace MMA
                             }
                             else if (range[i, 1] == ExcelEmpty.Value)
                                 keyList[j].SetValue(this, null);
-                            else if (Nullable.GetUnderlyingType(keyList[j].FieldType) == null)
-                            {
-                                var val = Convert.ChangeType(range[i, 1], keyList[j].FieldType);
-                                keyList[j].SetValue(this, val);
-                            }
-                            else if (Nullable.GetUnderlyingType(keyList[j].FieldType).BaseType.Name == "Enum")
-                            {
-                                var val = Enum.Parse(Nullable.GetUnderlyingType(keyList[j].FieldType), range[i, 1].ToString(), true);
-                                keyList[j].SetValue(this, val);
-                            }
                             else
-                            { 
-                                var val = Convert.ChangeType(range[i, 1], Nullable.GetUnderlyingType(keyList[j].FieldType));
-                                keyList[j].SetValue(this, val);
+                            {
+                                Type fieldType = keyList[j].FieldType;
+                                if (Nullable.GetUnderlyingType(fieldType) != null)
+                                    fieldType = Nullable.GetUnderlyingType(fieldType);
+                                try
+                                {
+                                    if (fieldType.BaseType.Name == "Enum")
+                                        keyList[j].SetValue(this, Enum.Parse(fieldType, range[i, 1].ToString(), true));
+                                    else
+                                        keyList[j].SetValue(this, Convert.ChangeType(range[i, 1], fieldType));
+                                }
+                                catch (Exception)
+                                {
+                                    throw new Exception(fieldType.Name + " cannot be set to " + range[i, 1]);
+                                }
                             }
                             break;
                         }
@@ -62,7 +64,7 @@ namespace MMA
             CheckObject();
         }
 
-        public virtual void CheckObject()
+        protected virtual void CheckObject()
         {
         }
 
