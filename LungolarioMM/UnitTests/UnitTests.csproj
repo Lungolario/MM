@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="ExcelFunctions_Tests.cs" />
     <Compile Include="ExcelObject_Tests.cs" />
+    <Compile Include="Curve_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

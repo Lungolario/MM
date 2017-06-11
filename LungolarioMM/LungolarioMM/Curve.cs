@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MMA
 {
@@ -25,7 +23,7 @@ namespace MMA
                 throw new Exception("Either field Rate or table Rates has to be set.");
         }
 
-        public SortedList _timeLogDF;
+        private SortedList _timeLogDF;
 
         private void Bootstrap()
         {
@@ -45,10 +43,8 @@ namespace MMA
             {
                 _timeLogDF = new SortedList { { Rates.End[i], 0.0 } };
                 for (int j = i; j >= 0; j--)
-                    _timeLogDF.Add(Rates.Start[j],
-                        GetLogDF(Rates.End[j]) + Rates.ContRate[j] * (Rates.End[j] - Rates.Start[j]));
+                    _timeLogDF.Add(Rates.Start[j], GetLogDF(Rates.End[j]) + Rates.ContRate[j] * (Rates.End[j] - Rates.Start[j]));
                 double adjustToZero = GetLogDF(0);
-                var a = _timeLogDF.Values;
                 for (int j = 0; j < _timeLogDF.Count; j++)
                     _timeLogDF.SetByIndex(j, (double)_timeLogDF.GetByIndex(j) - adjustToZero);
                 i++;
