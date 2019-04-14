@@ -115,8 +115,8 @@ namespace MMA
                 privProp.SetValue(this, null);
             return this;
         }
-        public string GetName() { return _name; }
-        public string GetNameCounter() { return _name + ":" + _counter; }
+        public string GetName() => _name;
+        public string GetNameCounter() => _name + ":" + _counter;
     }
     public class Model : ExcelObject
     {
@@ -149,7 +149,7 @@ namespace MMA
     public class ExcelObjectHandler
     {
         public List<ExcelObject> ObjList = new List<ExcelObject>();
-        public ExcelObject CreateObject(string name, string type, object[,] range)
+        public ExcelObject CreateOrOverwriteObject(string name, string type, object[,] range)
         {
             ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType(typeof(ExcelObject).Namespace + "." + type, true, true));
             newObj.CreateObject(Tools.StringTrim(name), range);

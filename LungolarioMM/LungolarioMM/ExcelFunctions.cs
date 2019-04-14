@@ -29,7 +29,7 @@ namespace MMA
         {
             try
             {
-                return ObjectHandler.CreateObject(objName, objType, range).GetNameCounter();
+                return ObjectHandler.CreateOrOverwriteObject(objName, objType, range).GetNameCounter();
             }
             catch (Exception e)
             {
@@ -187,7 +187,7 @@ namespace MMA
                 }
                 try
                 {
-                    loadedObjs.Add(ObjectHandler.CreateObject(name, type, mRange.Deliver(false)).GetNameCounter());
+                    loadedObjs.Add(ObjectHandler.CreateOrOverwriteObject(name, type, mRange.Deliver(false)).GetNameCounter());
                 }
                 catch (Exception e)
                 {

@@ -30,16 +30,16 @@ namespace MMA
         {
             Content = new T[nRows, nCols];
             for (var iRow = 0; iRow < nRows; iRow++)
-            for (var iCol = 0; iCol < nCols; iCol++)
-                try
-                {
-                    Content[iRow, iCol] = (T) range[rowStart + iRow, colStart + iCol];
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(e.Message + " Error in cell (" + (rowStart + iRow) + "," + (colStart + iCol) +
-                                        ") of range.");
-                }
+                for (var iCol = 0; iCol < nCols; iCol++)
+                    try
+                    {
+                        Content[iRow, iCol] = (T)range[rowStart + iRow, colStart + iCol];
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception(e.Message + " Error in cell (" + (rowStart + iRow) + "," + (colStart + iCol) +
+                                            ") of range.");
+                    }
         }
 
         public virtual object[,] ObjInfo(object column, object row)
@@ -179,8 +179,6 @@ namespace MMA
                             else
                             {
                                 var help = Array.CreateInstance(keyList[j].FieldType.GetElementType(), nRows - 1);
-
-
                                 for (var k = 1; k < nRows; k++)
                                 {
                                     var value = Convert.ChangeType(range[rowStart + k, colStart + i],
