@@ -66,12 +66,12 @@ namespace MMA
                     if (_transpose)
                     {
                         for (int iCol = 0; iCol < _field.Length; iCol++)
-                            if (_field.GetValue(iCol).ToString() != "")
+                            if (_field.GetValue(iCol).ToString().Length > 0)
                                 result[_upperLeftRow, _upperLeftColumn + iCol] = _field.GetValue(iCol);
                     }
                     else
                         for (int iRow = 0; iRow < _field.Length; iRow++)
-                            if (_field.GetValue(iRow).ToString() != "")
+                            if (_field.GetValue(iRow).ToString().Length > 0)
                                 result[_upperLeftRow + iRow, _upperLeftColumn] = _field.GetValue(iRow);
                 }
                 else
@@ -80,13 +80,13 @@ namespace MMA
                     {
                         for (int iCol = 0; iCol < _field.GetLength(0); iCol++)
                             for (int iRow = 0; iRow < _field.GetLength(1); iRow++)
-                                if (_field.GetValue(new[] { iCol, iRow }).ToString() != "")
+                                if (_field.GetValue(new[] { iCol, iRow }).ToString().Length > 0)
                                     result[_upperLeftRow + iRow, _upperLeftColumn + iCol] = _field.GetValue(new[] { iCol, iRow });
                     }
                     else
                         for (int iCol = 0; iCol < _field.GetLength(1); iCol++)
                             for (int iRow = 0; iRow < _field.GetLength(0); iRow++)
-                                if (_field.GetValue(new[] { iRow, iCol }).ToString() != "")
+                                if (_field.GetValue(new[] { iRow, iCol }).ToString().Length > 0)
                                     result[_upperLeftRow + iRow, _upperLeftColumn + iCol] = _field.GetValue(new[] { iRow, iCol });
                 }
             }

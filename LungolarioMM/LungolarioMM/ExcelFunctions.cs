@@ -10,7 +10,7 @@ namespace MMA
 {
     public class ExcelFunctions : IExcelAddIn
     {
-        private static DateTime _expiryDate = new DateTime(2020, 05, 15);
+        private static readonly DateTime _expiryDate = new DateTime(2020, 05, 15);
 
         public void AutoOpen()
         {
@@ -20,7 +20,10 @@ namespace MMA
                 throw new Exception("XLL expired");
             }
         }
-        public void AutoClose() { }
+        public void AutoClose()
+        {
+            //function has to be implemented
+        }
 
         static readonly ExcelObjectHandler ObjectHandler = new ExcelObjectHandler();
 
@@ -50,9 +53,9 @@ namespace MMA
         public static string mmDeleteObjs(string name, string type)
         {
             int i = ObjectHandler.ObjList.Count;
-            if (type != "" && name != "")
+            if (type.Length > 0 && name.Length > 0)
                 ObjectHandler.ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
-            else if (type != "")
+            else if (type.Length > 0)
                 ObjectHandler.ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
                 ObjectHandler.ObjList.Clear();

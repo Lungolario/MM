@@ -12,17 +12,17 @@ namespace MMA.TestCases
             string name = "A";
             string type = "MODEL";
             object[,] range = new object[0, 0];
-            Assert.AreEqual(ExcelFunctions.mmCreateObj(name, type, range), "A:0");
+            Assert.AreEqual("A:0", ExcelFunctions.mmCreateObj(name, type, range));
             name = "B";
             type = "VOL";
-            Assert.AreEqual(ExcelFunctions.mmCreateObj(name, type, range), "B:0");
+            Assert.AreEqual("B:0", ExcelFunctions.mmCreateObj(name, type, range));
             object[,] result = ExcelFunctions.mmListObjs();
-            Assert.AreEqual(result.GetLength(0), 2);
-            Assert.AreEqual(result.GetLength(1), 2);
-            Assert.AreEqual(result[0, 0].ToString(), "A");
-            Assert.AreEqual(result[0, 1].ToString(), "MODEL");
-            Assert.AreEqual(result[1, 0].ToString(), "B");
-            Assert.AreEqual(result[1, 1].ToString(), "VOL");
+            Assert.AreEqual(2, result.GetLength(0));
+            Assert.AreEqual(2, result.GetLength(1));
+            Assert.AreEqual("A", result[0, 0].ToString());
+            Assert.AreEqual("MODEL", result[0, 1].ToString());
+            Assert.AreEqual("B", result[1, 0].ToString());
+            Assert.AreEqual("VOL", result[1, 1].ToString());
         }
     }
 }

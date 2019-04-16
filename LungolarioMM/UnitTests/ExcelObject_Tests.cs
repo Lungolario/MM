@@ -12,10 +12,10 @@ namespace MMA.TestCases
             ExcelObject obj = new Vol();
             object[,] range = new object[0, 0];
             obj.CreateObject("C", range);
-            Assert.AreEqual(obj.GetNameCounter(), "C:0");
-            Assert.AreEqual(obj.GetName(), "C");
+            Assert.AreEqual("C:0", obj.GetNameCounter());
+            Assert.AreEqual("C", obj.GetName());
             obj.FinishMod();
-            Assert.AreEqual(obj.GetNameCounter(), "C:1");
+            Assert.AreEqual("C:1", obj.GetNameCounter());
         }
     }
 }
