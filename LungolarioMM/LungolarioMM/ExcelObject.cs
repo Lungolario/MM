@@ -132,7 +132,7 @@ namespace MMA
     {
         public double Result;
     }
-    public class Security : ExcelObject
+    public class Trade : ExcelObject
     {
         public string Currency;
         public double Start;
@@ -143,7 +143,7 @@ namespace MMA
         public string MODEL;
         public string CURVE;
         public string VOL;
-        public string SECURITY;
+        public string TRADE;
         public string RESULTS;
     }
     public class ExcelObjectHandler
