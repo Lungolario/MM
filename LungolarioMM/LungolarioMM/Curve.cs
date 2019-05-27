@@ -14,8 +14,8 @@ namespace MMA
             public double[] ContRate;
         }
         public RatesVectors Rates = null;
-        public enum BootStrapEnum {Normal, Reverse};
-        public BootStrapEnum BootStrap;
+        public enum BootStrapType {Normal, Reverse};
+        public BootStrapType BootStrap;
 
         protected override void CheckObject()
         {
@@ -33,7 +33,7 @@ namespace MMA
                 return;
             }
             int i = 0;
-            if (BootStrap == BootStrapEnum.Reverse)
+            if (BootStrap == BootStrapType.Reverse)
                 for (; i < Rates.Start.Length - 1; i++)
                     if (Rates.Start[i + 1].Equals(0) || Rates.Start[i + 1].Equals(Rates.End[i]))
                         break;

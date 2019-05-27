@@ -64,18 +64,18 @@ namespace MMA
         }
     }
 
-    public class MatrixH<T, T_HR> : Matrix<T>
+    public class MatrixH<T, THEADER> : Matrix<T>
     {
-        protected T_HR[] ColumnHeaders;
+        protected THEADER[] ColumnHeaders;
 
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
             base.CreateMatrix(range, rowStart + 1, nRows - 1, colStart, nCols);
-            ColumnHeaders = new T_HR[nCols];
+            ColumnHeaders = new THEADER[nCols];
             for (var iCol = 0; iCol < nCols; iCol++)
                 try
                 {
-                    ColumnHeaders[iCol] = (T_HR) range[rowStart, colStart + iCol];
+                    ColumnHeaders[iCol] = (THEADER) range[rowStart, colStart + iCol];
                 }
                 catch (Exception e)
                 {
@@ -102,7 +102,7 @@ namespace MMA
             return base.ObjInfo(FindHeader(column, ColumnHeaders, "Column"), row);
         }
 
-        public object FindHeader(object index, T_HR[] header, string name)
+        public object FindHeader(object index, THEADER[] header, string name)
         {
             if (index.GetType() == typeof(ExcelMissing))
                 return index;
@@ -113,19 +113,19 @@ namespace MMA
         }
     }
 
-    public class MatrixHR<T, T_HR> : MatrixH<T, T_HR>
+    public class MatrixHR<T, THEADER> : MatrixH<T, THEADER>
     {
-        protected T_HR[] RowHeaders;
+        protected THEADER[] RowHeaders;
         protected string UpperLeft;
 
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
             base.CreateMatrix(range, rowStart, nRows, colStart + 1, nCols - 1);
-            RowHeaders = new T_HR[nRows - 1];
+            RowHeaders = new THEADER[nRows - 1];
             for (var iRow = 1; iRow < nRows; iRow++)
                 try
                 {
-                    RowHeaders[iRow - 1] = (T_HR) range[rowStart + iRow, colStart];
+                    RowHeaders[iRow - 1] = (THEADER) range[rowStart + iRow, colStart];
                 }
                 catch (Exception e)
                 {
