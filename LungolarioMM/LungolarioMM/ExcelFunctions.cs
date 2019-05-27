@@ -10,7 +10,7 @@ namespace MMA
 {
     public class ExcelFunctions : IExcelAddIn
     {
-        private static DateTime _expiryDate = new DateTime(2020, 05, 15);
+        private static readonly DateTime _expiryDate = new DateTime(2020, 05, 15);
 
         public void AutoOpen()
         {
@@ -20,7 +20,9 @@ namespace MMA
                 throw new Exception("XLL expired");
             }
         }
-        public void AutoClose() { }
+        public void AutoClose() {
+            //Funktion wird nicht benötigt
+        }
 
         static readonly ExcelObjectHandler ObjectHandler = new ExcelObjectHandler();
 

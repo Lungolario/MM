@@ -163,9 +163,9 @@ namespace MMA
         public int DeleteObjects(string name, string type)
         {
             int i = ObjList.Count;
-            if (type != "" && name != "")
+            if (type.Length > 0  && name.Length > 0)
                 ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
-            else if (type != "")
+            else if (type.Length > 0)
                 ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
                 ObjList.Clear();

@@ -3,16 +3,17 @@ using System.Collections;
 
 namespace MMA
 {
+    public class RatesVectors : Vectors
+    {
+        public double[] Start;
+        public double[] End;
+        public double[] ContRate;
+    }
     public class Curve : ExcelObject
     {
         public string Currency;
         public double? Rate = null;
-        public class RatesVectors : Vectors
-        {
-            public double[] Start;
-            public double[] End;
-            public double[] ContRate;
-        }
+
         public RatesVectors Rates = null;
         public enum BootStrapType {Normal, Reverse};
         public BootStrapType BootStrap;
