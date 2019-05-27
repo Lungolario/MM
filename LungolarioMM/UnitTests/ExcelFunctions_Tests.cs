@@ -1,13 +1,14 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+
 namespace MMA.TestCases
 {
     [TestClass]
     public class ExcelFunctions_Tests
     {
         [TestMethod()]
-        public void TM_mmCreateObj_mmListObj()
+        public void TM_mmCreateObj_mmListObj_mmDeletaObjs()
         {
             string name = "A";
             string type = "MODEL";
@@ -23,6 +24,8 @@ namespace MMA.TestCases
             Assert.AreEqual(result[0, 1].ToString(), "MODEL");
             Assert.AreEqual(result[1, 0].ToString(), "B");
             Assert.AreEqual(result[1, 1].ToString(), "VOL");
+
+            Assert.AreEqual(ExcelFunctions.mmDeleteObjs("", "VOL"), "Deleted 1 object(s).");
         }
     }
 }

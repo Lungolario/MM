@@ -160,5 +160,16 @@ namespace MMA
         {
             return ObjList.Find(item => item.GetName().ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
         }
+        public int DeleteObjects(string name, string type)
+        {
+            int i = ObjList.Count;
+            if (type != "" && name != "")
+                ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
+            else if (type != "")
+                ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
+            else
+                ObjList.Clear();
+            return i - ObjList.Count;
+        }
     }
 }

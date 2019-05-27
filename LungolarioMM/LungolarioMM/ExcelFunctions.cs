@@ -24,7 +24,7 @@ namespace MMA
 
         static readonly ExcelObjectHandler ObjectHandler = new ExcelObjectHandler();
 
-        [ExcelFunction(Description = "Creates an object with name and type")]
+        [ExcelFunction(Description = "Creates an object with name and type", IsVolatile = true)]
         public static string mmCreateObj(string objName, string objType, object[,] range)
         {
             try
@@ -37,7 +37,7 @@ namespace MMA
             }
         }
 
-        [ExcelFunction(Description = "Display an object")]
+        [ExcelFunction(Description = "Display an object", IsVolatile = true)]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
             ExcelObject obj = ObjectHandler.GetObject(objName, objType);
@@ -46,21 +46,13 @@ namespace MMA
             return obj.DisplayObject();
         }
 
-        [ExcelFunction(Description = "Delete objects")]
+        [ExcelFunction(Description = "Delete objects", IsVolatile = true)]
         public static string mmDeleteObjs(string name, string type)
         {
-            int i = ObjectHandler.ObjList.Count;
-            if (type != "" && name != "")
-                ObjectHandler.ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
-            else if (type != "")
-                ObjectHandler.ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
-            else
-                ObjectHandler.ObjList.Clear();
-            i -= ObjectHandler.ObjList.Count;
-            return "Deleted " + i + " object(s).";
+            return "Deleted " + ObjectHandler.DeleteObjects(name, type) + " object(s).";
         }
 
-        [ExcelFunction(Description = "List all objects")]
+        [ExcelFunction(Description = "List all objects", IsVolatile = true)]
         public static object[,] mmListObjs()
         {
             object[,] results = new object[ObjectHandler.ObjList.Count, 2];
@@ -73,7 +65,7 @@ namespace MMA
             return results;
         }
 
-        [ExcelFunction(Description = "Get the instance of an object")]
+        [ExcelFunction(Description = "Get the instance of an object", IsVolatile = true)]
         public static string mmGetObj(string objName, string objType)
         {
             ExcelObject obj = ObjectHandler.GetObject(objName, objType);
@@ -82,7 +74,7 @@ namespace MMA
             return obj.GetNameCounter();
         }
 
-        [ExcelFunction(Description = "Get the value of a key of an object")]
+        [ExcelFunction(Description = "Get the value of a key of an object", IsVolatile = true)]
         public static object[,] mmGetObjInfo(string objName, string objType, string key, object column, object row)
         {
             ExcelObject obj = ObjectHandler.GetObject(objName, objType);
@@ -106,7 +98,7 @@ namespace MMA
             return new object[,] { { "Object found, key not found." } };
         }
 
-        [ExcelFunction(Description = "Modify an object")]
+        [ExcelFunction(Description = "Modify an object", IsVolatile = true)]
         public static string mmModifyObj(string objName, string objType, string key, object value)
         {
             ExcelObject obj = ObjectHandler.GetObject(objName, objType);
@@ -129,7 +121,7 @@ namespace MMA
             return "Object found, key not found.";
         }
 
-        [ExcelFunction(Description = "Save objects to file")]
+        [ExcelFunction(Description = "Save objects to file", IsVolatile = true)]
         public static string mmSaveObjs(object[,] objNames, object[,] objTypes, string location)
         {
             string resultData = "";
@@ -153,7 +145,7 @@ namespace MMA
             return objNames.GetLength(0) + " object(s) was/were saved!";
         }
 
-        [ExcelFunction(Description = "Load all objects from file")]
+        [ExcelFunction(Description = "Load all objects from file", IsVolatile = true)]
         public static object[,] mmLoadObjs(string location)
         {
             if (!File.Exists(location))
@@ -202,7 +194,7 @@ namespace MMA
             return vLoadedObjs;
         }
 
-        [ExcelFunction(Description = "Calculate rate from Start to End")]
+        [ExcelFunction(Description = "Calculate rate from Start to End", IsVolatile = true)]
         public static object mmCurveRate(string objName, double start, double end)
         {
             ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
@@ -218,7 +210,7 @@ namespace MMA
             }
         }
 
-        [ExcelFunction(Description = "Calculate discount factor for time")]
+        [ExcelFunction(Description = "Calculate discount factor for time", IsVolatile = true)]
         public static object mmCurveDF(string objName, double time)
         {
             ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
