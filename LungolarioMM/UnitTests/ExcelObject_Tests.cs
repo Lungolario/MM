@@ -9,7 +9,7 @@ namespace MMA.TestCases
         [TestMethod()]
         public void ExcelObjectCreation()
         {
-            ExcelObject obj = new Vol();
+            ObjHandle obj = new Vol();
             object[,] range = new object[0, 0];
             obj.CreateObject("C", range);
             Assert.AreEqual("C:0", obj.GetNameCounter());
