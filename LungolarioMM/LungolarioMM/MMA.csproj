@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Curve.cs" />
-    <Compile Include="ExcelObject.cs" />
+    <Compile Include="ObjHandle.cs" />
     <Compile Include="ExcelFunctions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MatrixBuilder.cs" />

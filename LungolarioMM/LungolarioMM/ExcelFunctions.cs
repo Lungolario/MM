@@ -24,7 +24,7 @@ namespace MMA
             //Funktion wird nicht benötigt
         }
 
-        static readonly ExcelObjectHandler ObjectHandler = new ExcelObjectHandler();
+        static readonly ObjectHandler ObjectHandler = new ObjectHandler();
 
         [ExcelFunction(Description = "Creates an object with name and type", IsVolatile = true)]
         public static string mmCreateObj(string objName, string objType, object[,] range)
@@ -42,7 +42,7 @@ namespace MMA
         [ExcelFunction(Description = "Display an object", IsVolatile = true)]
         public static object[,] mmDisplayObj(string objName, string objType)
         {
-            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
+            ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return new object[,] { { "Object not found." } };
             return obj.DisplayObject();
@@ -70,7 +70,7 @@ namespace MMA
         [ExcelFunction(Description = "Get the instance of an object", IsVolatile = true)]
         public static string mmGetObj(string objName, string objType)
         {
-            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
+            ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
             return obj.GetNameCounter();
@@ -79,7 +79,7 @@ namespace MMA
         [ExcelFunction(Description = "Get the value of a key of an object", IsVolatile = true)]
         public static object[,] mmGetObjInfo(string objName, string objType, string key, object column, object row)
         {
-            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
+            ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return new object[,] { { "Object not found." } };
             FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -103,7 +103,7 @@ namespace MMA
         [ExcelFunction(Description = "Modify an object", IsVolatile = true)]
         public static string mmModifyObj(string objName, string objType, string key, object value)
         {
-            ExcelObject obj = ObjectHandler.GetObject(objName, objType);
+            ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
             FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -131,7 +131,7 @@ namespace MMA
                 return "objNames and objTypes must be Vectors of the same length!";
             for (int iObj = 0; iObj < objNames.GetLength(0); iObj++)
             {
-                ExcelObject obj = ObjectHandler.GetObject(objNames[iObj, 0].ToString(), objTypes[iObj, 0].ToString());
+                ObjHandle obj = ObjectHandler.GetObject(objNames[iObj, 0].ToString(), objTypes[iObj, 0].ToString());
                 if (obj == null)
                     return "Object " + objNames[iObj, 0] + " of type " + objTypes[iObj, 0] + "does not exist!";
                 resultData += obj.ObjectSerialize() + "\r\n";
@@ -199,7 +199,7 @@ namespace MMA
         [ExcelFunction(Description = "Calculate rate from Start to End", IsVolatile = true)]
         public static object mmCurveRate(string objName, double start, double end)
         {
-            ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
+            ObjHandle curveObj = ObjectHandler.GetObject(objName, "CURVE");
             if (curveObj == null)
                 return "Object not found.";
             try
@@ -215,7 +215,7 @@ namespace MMA
         [ExcelFunction(Description = "Calculate discount factor for time", IsVolatile = true)]
         public static object mmCurveDF(string objName, double time)
         {
-            ExcelObject curveObj = ObjectHandler.GetObject(objName, "CURVE");
+            ObjHandle curveObj = ObjectHandler.GetObject(objName, "CURVE");
             if (curveObj == null)
                 return "Object not found.";
             try

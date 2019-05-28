@@ -9,7 +9,7 @@ namespace MMA
         public double[] End;
         public double[] ContRate;
     }
-    public class Curve : ExcelObject
+    public class Curve : ObjHandle
     {
         public string Currency;
         public double? Rate = null;
