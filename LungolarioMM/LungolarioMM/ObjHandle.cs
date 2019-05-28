@@ -5,7 +5,7 @@ using ExcelDna.Integration;
 
 namespace MMA
 {
-    public abstract class ExcelObject
+    public abstract class ObjHandle
     {
         private string _name;
         private int _counter;
@@ -97,9 +97,9 @@ namespace MMA
             return data;
         }
 
-        public ExcelObject TakeOverOldObject(ExcelObjectHandler objHandler)
+        public ObjHandle TakeOverOldObject(ObjectHandler objHandler)
         {
-            ExcelObject existingObj = objHandler.GetObject(_name, GetType().Name);
+            ObjHandle existingObj = objHandler.GetObject(_name, GetType().Name);
             if (existingObj != null)
             {
                 _counter = existingObj._counter + 1;
@@ -107,7 +107,7 @@ namespace MMA
             }
             return this;
         }
-        public ExcelObject FinishMod()
+        public ObjHandle FinishMod()
         {
             _counter++;
             FieldInfo[] privateProps = GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
@@ -118,54 +118,54 @@ namespace MMA
         public string GetName() => _name;
         public string GetNameCounter() => _name + ":" + _counter;
     }
-    public class Model : ExcelObject
+    public class Model : ObjHandle
     {
         public string ModelName;
         public int ExtraResults;
     }
-    public class Vol : ExcelObject
+    public class Vol : ObjHandle
     {
         public string Currency;
         public double Volatility;
     }
-    public class Results : ExcelObject
+    public class Results : ObjHandle
     {
         public double Result;
     }
-    public class Security : ExcelObject
+    public class Trade : ObjHandle
     {
         public string Currency;
         public double Start;
     }
-    public class Dictionary : ExcelObject
+    public class Dictionary : ObjHandle
     {
         public string MODE;
         public string MODEL;
         public string CURVE;
         public string VOL;
-        public string SECURITY;
+        public string TRADE;
         public string RESULTS;
     }
-    public class ExcelObjectHandler
+    public class ObjectHandler
     {
-        public List<ExcelObject> ObjList = new List<ExcelObject>();
-        public ExcelObject CreateOrOverwriteObject(string name, string type, object[,] range)
+        public List<ObjHandle> ObjList = new List<ObjHandle>();
+        public ObjHandle CreateOrOverwriteObject(string name, string type, object[,] range)
         {
-            ExcelObject newObj = (ExcelObject)Activator.CreateInstance(Type.GetType(typeof(ExcelObject).Namespace + "." + type, true, true));
+            ObjHandle newObj = (ObjHandle)Activator.CreateInstance(Type.GetType(typeof(ObjHandle).Namespace + "." + type, true, true));
             newObj.CreateObject(Tools.StringTrim(name), range);
             ObjList.Add(newObj.TakeOverOldObject(this));
             return newObj;
         }
-        public ExcelObject GetObject(string name, string type)
+        public ObjHandle GetObject(string name, string type)
         {
             return ObjList.Find(item => item.GetName().ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
         }
         public int DeleteObjects(string name, string type)
         {
             int i = ObjList.Count;
-            if (type != "" && name != "")
+            if (type.Length > 0  && name.Length > 0)
                 ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
-            else if (type != "")
+            else if (type.Length > 0)
                 ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
                 ObjList.Clear();
