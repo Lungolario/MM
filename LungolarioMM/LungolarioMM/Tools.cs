@@ -44,16 +44,16 @@ namespace MMA
 
         public virtual object[,] ObjInfo(object column, object row)
         {
-            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+            if (column is ExcelMissing && row is ExcelMissing)
                 return (object[,]) (object) Content;
-            if (column.GetType() == typeof(ExcelMissing))
+            if (column is ExcelMissing)
             {
                 var result = new object[1, Content.GetLength(1)];
                 for (var i = 0; i < Content.GetLength(1); i++)
                     result[0, i] = Content[Convert.ToInt32(row), i];
                 return result;
             }
-            if (row.GetType() == typeof(ExcelMissing))
+            if (row is ExcelMissing)
             {
                 var result = new object[Content.GetLength(0), 1];
                 for (var i = 0; i < Content.GetLength(0); i++)
@@ -86,14 +86,14 @@ namespace MMA
 
         public override object[,] ObjInfo(object column, object row)
         {
-            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+            if (column is ExcelMissing && row is ExcelMissing)
             {
                 var result = new MatrixBuilder();
                 result.Add(ColumnHeaders, false, true, true);
                 result.Add(Content, false, true, false);
                 return result.Deliver();
             }
-            if (row.GetType() != typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
+            if (row is ExcelMissing && Convert.ToInt32(row) == -1)
             {
                 var result = new MatrixBuilder();
                 result.Add(ColumnHeaders, false, true, true);
@@ -104,7 +104,7 @@ namespace MMA
 
         public object FindHeader(object index, THEADER[] header, string name)
         {
-            if (index.GetType() == typeof(ExcelMissing))
+            if (index is ExcelMissing)
                 return index;
             for (var i = 0; i < header.GetLength(0); i++)
                 if (index.Equals(header[i]))
@@ -137,7 +137,7 @@ namespace MMA
 
         public override object[,] ObjInfo(object column, object row)
         {
-            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+            if (column is ExcelMissing && row is ExcelMissing)
             {
                 var result = new MatrixBuilder();
                 result.Add(new object[,] {{UpperLeft}}, false, true, false);
@@ -148,7 +148,7 @@ namespace MMA
             }
             if (Convert.ToInt32(column) == -1 && Convert.ToInt32(row) == -1)
                 return new object[,] {{UpperLeft}};
-            if (Convert.ToInt32(column) == -1 && row.GetType() == typeof(ExcelMissing))
+            if (Convert.ToInt32(column) == -1 && row is ExcelMissing)
             {
                 var result = new object[Content.GetLength(0), 1];
                 for (var iRow = 0; iRow < Content.GetLength(0); iRow++)
@@ -200,7 +200,7 @@ namespace MMA
             int iCol;
             var keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             var nCol = keyList.Length;
-            if (column.GetType() == typeof(ExcelMissing) && row.GetType() == typeof(ExcelMissing))
+            if (column is ExcelMissing && row is ExcelMissing)
             {
                 var header = new string[nCol];
                 for (iCol = 0; iCol < nCol; iCol++)
@@ -212,7 +212,7 @@ namespace MMA
                     resi.Add((Array) keyList[iCol].GetValue(this), true, false, false);
                 return resi.Deliver();
             }
-            if (column.GetType() == typeof(ExcelMissing) && Convert.ToInt32(row) == -1)
+            if (column is ExcelMissing && Convert.ToInt32(row) == -1)
             {
                 var result2 = new object[1, nCol];
                 for (iCol = 0; iCol < nCol; iCol++)
@@ -227,7 +227,7 @@ namespace MMA
             var b = (Array) keyList[iCol].GetValue(this);
             if (b.Length == 0)
                 return new object[,] {{"Column " + column + " has not been initialized!"}};
-            if (row.GetType() != typeof(ExcelMissing))
+            if (row is ExcelMissing)
                 return new[,] {{b.GetValue(Convert.ToInt32(row))}};
             var result = new object[b.Length, 1];
             for (int iRow = 0; iRow < b.Length; iRow++)
