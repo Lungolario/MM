@@ -15,7 +15,7 @@ namespace MMA
         }
     }
 
-    //interface to simplify code in ExcelObject.CreateObject and ExcelFunctions.mmDisplayObj
+    //interface to simplify code in ObjHandle.CreateObject and ExcelFunctions.mmDisplayObj
     public interface IIMatrix
     {
         void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols);
