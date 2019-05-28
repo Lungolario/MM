@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ExcelDna.Integration;
 
 namespace MMA
 {
@@ -33,11 +32,10 @@ namespace MMA
             _matrices.Add(new MBHelp(field, _upperLeftRow, _upperLeftColumn, transpose));
             return this;
         }
-        public object[,] Deliver(bool isForSaveDown = true)
+        public object[,] Deliver(object defaultValue = null)
         {
-            object defaultValue = "";
-            if (!isForSaveDown)
-                defaultValue = ExcelEmpty.Value;
+            if (defaultValue == null)
+                defaultValue = "";
             object[,] result = new object[_maxRow + 1, _maxColumn + 1];
             for (int iRow = 0; iRow < _maxRow + 1; iRow++)
                 for (int iCol = 0; iCol < _maxColumn + 1; iCol++)

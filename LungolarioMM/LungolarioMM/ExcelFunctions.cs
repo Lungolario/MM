@@ -181,7 +181,7 @@ namespace MMA
                 }
                 try
                 {
-                    loadedObjs.Add(ObjectHandler.CreateOrOverwriteObject(name, type, mRange.Deliver(false)).GetNameCounter());
+                    loadedObjs.Add(ObjectHandler.CreateOrOverwriteObject(name, type, mRange.Deliver(ExcelEmpty.Value)).GetNameCounter());
                 }
                 catch (Exception e)
                 {
