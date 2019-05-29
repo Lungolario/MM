@@ -24,7 +24,7 @@ namespace MMA
 
     public class Matrix<T> : IIMatrix
     {
-        protected T[,] Content;
+        internal T[,] Content;
 
         public virtual void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
@@ -66,7 +66,7 @@ namespace MMA
 
     public class MatrixH<T, THEADER> : Matrix<T>
     {
-        protected THEADER[] ColumnHeaders;
+        internal THEADER[] ColumnHeaders;
 
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
@@ -115,8 +115,8 @@ namespace MMA
 
     public class MatrixHR<T, THEADER> : MatrixH<T, THEADER>
     {
-        protected THEADER[] RowHeaders;
-        protected string UpperLeft;
+        internal THEADER[] RowHeaders;
+        internal string UpperLeft;
 
         public override void CreateMatrix(object[,] range, int rowStart, int nRows, int colStart, int nCols)
         {
