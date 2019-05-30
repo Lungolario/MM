@@ -18,7 +18,7 @@ namespace MMA
         public enum BootStrapType {Normal, Reverse};
         public BootStrapType BootStrap;
 
-        protected override void CheckObject()
+        protected override void Check()
         {
             if (!(Rate == null ^ Rates == null))
                 throw new Exception("Either field Rate or table Rates has to be set.");

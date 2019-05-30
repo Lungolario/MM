@@ -32,16 +32,16 @@ namespace MMA.TestCases
             range[6, 2] = 2;
             range[6, 3] = 0.03;
             Curve obj = new Curve();
-            obj.CreateObject("A", range);
+            obj.Create("A", range);
             Assert.AreEqual(0.01, obj.GetRate(0, 0.5));
 
             range[1, 1] = "Reverse";
             Curve obj2 = new Curve();
-            obj2.CreateObject("B", range);
+            obj2.Create("B", range);
             Assert.AreEqual(0, obj2.GetRate(0, 0.5));
             Assert.AreEqual(1, obj.GetDF(0));
 
-            var curveDisp = obj2.DisplayObject();
+            var curveDisp = obj2.Display();
             Assert.AreEqual("BootStrap", curveDisp[6,0]);
         }
     }

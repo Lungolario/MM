@@ -31,7 +31,7 @@ namespace MMA
         {
             try
             {
-                return ObjectHandler.CreateOrOverwriteObject(objName, objType, range).GetNameCounter();
+                return ObjectHandler.CreateOrOverwriteObject(objName, objType, range).ToStringWithCounter();
             }
             catch (Exception e)
             {
@@ -45,7 +45,7 @@ namespace MMA
             ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return new object[,] { { "Object not found." } };
-            return obj.DisplayObject();
+            return obj.Display();
         }
 
         [ExcelFunction(Description = "Delete objects", IsVolatile = true)]
@@ -61,7 +61,7 @@ namespace MMA
             int j = 0;
             foreach (var obj in ObjectHandler.ObjList)
             {
-                results[j, 0] = obj.GetName();
+                results[j, 0] = obj.ToString();
                 results[j++, 1] = obj.GetType().Name.ToUpper();
             }
             return results;
@@ -73,7 +73,7 @@ namespace MMA
             ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
-            return obj.GetNameCounter();
+            return obj.ToStringWithCounter();
         }
 
         [ExcelFunction(Description = "Get the value of a key of an object", IsVolatile = true)]
@@ -106,7 +106,7 @@ namespace MMA
             ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
-            return obj.ModifyObject(key, value);
+            return obj.Modify(key, value);
         }
 
         [ExcelFunction(Description = "Save objects to file", IsVolatile = true)]
@@ -167,7 +167,7 @@ namespace MMA
                 }
                 try
                 {
-                    loadedObjs.Add(ObjectHandler.CreateOrOverwriteObject(name, type, mRange.Deliver(ExcelEmpty.Value)).GetNameCounter());
+                    loadedObjs.Add(ObjectHandler.CreateOrOverwriteObject(name, type, mRange.Deliver(ExcelEmpty.Value)).ToStringWithCounter());
                 }
                 catch (Exception e)
                 {

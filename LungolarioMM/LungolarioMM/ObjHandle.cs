@@ -9,7 +9,7 @@ namespace MMA
     {
         private string _name;
         private int _counter;
-        public void CreateObject(string name, object[,] range)
+        public void Create(string name, object[,] range)
         {
             _name = name;
             if (range.GetLength(0) > 0 && range.GetLength(1) > 1)
@@ -61,14 +61,14 @@ namespace MMA
                         throw new Exception("Key " + range[i, 0] + " not available for object " + GetType().Name);
                 }
             }
-            CheckObject();
+            Check();
         }
 
-        protected virtual void CheckObject()
+        protected virtual void Check()
         {
         }
 
-        public object[,] DisplayObject()
+        public object[,] Display()
         {
             FieldInfo[] keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             MatrixBuilder result = new MatrixBuilder();
@@ -85,9 +85,9 @@ namespace MMA
         }
         public string Serialize()
         {
-            object[,] objMatrix = DisplayObject();
+            object[,] objMatrix = Display();
             string data = "NEW" + GetType().Name.ToUpper() + "\r\n";
-            data += "_name\t" + GetName() + "\r\n";
+            data += "_name\t" + ToString() + "\r\n";
             for (int iRow = 0; iRow < objMatrix.GetLength(0); iRow++)
             {
                 for (int iCol = 0; iCol < objMatrix.GetLength(1); iCol++)
@@ -108,7 +108,7 @@ namespace MMA
             return this;
         }
 
-        public string ModifyObject(string key, object value)
+        public string Modify(string key, object value)
         {
             FieldInfo[] keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
             foreach (var keyL in keyList)
@@ -117,7 +117,7 @@ namespace MMA
                     try
                     {
                         keyL.SetValue(this, value);
-                        return FinishMod().GetNameCounter();
+                        return FinishMod().ToStringWithCounter();
                     }
                     catch (Exception e)
                     {
@@ -135,8 +135,9 @@ namespace MMA
                 privProp.SetValue(this, null);
             return this;
         }
-        public string GetName() => _name;
-        public string GetNameCounter() => _name + ":" + _counter;
+        public override string ToString() => _name;
+        public string ToStringWithCounter() => _name + ":" + _counter;
+        
     }
     public class Model : ObjHandle
     {
@@ -172,19 +173,19 @@ namespace MMA
         public ObjHandle CreateOrOverwriteObject(string name, string type, object[,] range)
         {
             ObjHandle newObj = (ObjHandle)Activator.CreateInstance(Type.GetType(typeof(ObjHandle).Namespace + "." + type, true, true));
-            newObj.CreateObject(Tools.StringTrim(name), range);
+            newObj.Create(Tools.StringTrim(name), range);
             ObjList.Add(newObj.TakeOverOldObject(this));
             return newObj;
         }
         public ObjHandle GetObject(string name, string type)
         {
-            return ObjList.Find(item => item.GetName().ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
+            return ObjList.Find(item => item.ToString().ToUpper().Equals(Tools.StringTrim(name).ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
         }
         public int DeleteObjects(string name, string type)
         {
             int i = ObjList.Count;
             if (type.Length > 0  && name.Length > 0)
-                ObjList.RemoveAll(item => item.GetName().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
+                ObjList.RemoveAll(item => item.ToString().ToUpper().Equals(name.ToUpper()) && item.GetType().Name.ToUpper() == type.ToUpper());
             else if (type.Length > 0)
                 ObjList.RemoveAll(item => item.GetType().Name.ToUpper() == type.ToUpper());
             else
