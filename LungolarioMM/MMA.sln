@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMA", "LungolarioMM\MMA.csproj", "{BAC92F3A-55A2-43B0-876F-663355BEEC79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMAExcel", "LungolarioMM\MMAExcel.csproj", "{BAC92F3A-55A2-43B0-876F-663355BEEC79}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{A322F856-79DB-404F-BC96-026F7B85D72B}"
 EndProject
@@ -24,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {124A0453-5748-48A0-AF5D-001A163E217D}
 	EndGlobalSection
 EndGlobal

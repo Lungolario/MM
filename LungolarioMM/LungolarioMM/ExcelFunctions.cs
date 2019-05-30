@@ -106,21 +106,7 @@ namespace MMA
             ObjHandle obj = ObjectHandler.GetObject(objName, objType);
             if (obj == null)
                 return "Object not found.";
-            FieldInfo[] keyList = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
-            foreach (var keyL in keyList)
-                if (key.ToUpper() == keyL.Name.ToUpper())
-                {
-                    try
-                    {
-                        keyL.SetValue(obj, value);
-                        return obj.FinishMod().GetNameCounter();
-                    }
-                    catch (Exception e)
-                    {
-                        return e.Message;
-                    }
-                }
-            return "Object found, key not found.";
+            return obj.ModifyObject(key, value);
         }
 
         [ExcelFunction(Description = "Save objects to file", IsVolatile = true)]
@@ -134,7 +120,7 @@ namespace MMA
                 ObjHandle obj = ObjectHandler.GetObject(objNames[iObj, 0].ToString(), objTypes[iObj, 0].ToString());
                 if (obj == null)
                     return "Object " + objNames[iObj, 0] + " of type " + objTypes[iObj, 0] + "does not exist!";
-                resultData += obj.ObjectSerialize() + "\r\n";
+                resultData += obj.Serialize() + "\r\n";
             }
             try
             {

@@ -57,9 +57,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LungolarioMM\MMA.csproj">
+    <ProjectReference Include="..\LungolarioMM\MMAExcel.csproj">
       <Project>{bac92f3a-55a2-43b0-876f-663355beec79}</Project>
-      <Name>MMA</Name>
+      <Name>MMAExcel</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

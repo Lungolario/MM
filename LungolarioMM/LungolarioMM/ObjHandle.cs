@@ -83,7 +83,7 @@ namespace MMA
                 }
             return result.Deliver();
         }
-        public string ObjectSerialize()
+        public string Serialize()
         {
             object[,] objMatrix = DisplayObject();
             string data = "NEW" + GetType().Name.ToUpper() + "\r\n";
@@ -107,6 +107,26 @@ namespace MMA
             }
             return this;
         }
+
+        public string ModifyObject(string key, object value)
+        {
+            FieldInfo[] keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var keyL in keyList)
+                if (key.ToUpper() == keyL.Name.ToUpper())
+                {
+                    try
+                    {
+                        keyL.SetValue(this, value);
+                        return FinishMod().GetNameCounter();
+                    }
+                    catch (Exception e)
+                    {
+                        return e.Message;
+                    }
+                }
+            return "Object found, key not found.";
+        }
+
         public ObjHandle FinishMod()
         {
             _counter++;
