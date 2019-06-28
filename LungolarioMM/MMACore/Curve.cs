@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace MMA
+namespace MMACore
 {
     public class RatesVectors : Vectors
     {
@@ -58,9 +58,9 @@ namespace MMA
             if (_timeLogDF == null)
                 Bootstrap();
             if (time > (double)_timeLogDF.GetKey(_timeLogDF.Count - 1))
-                throw new Exception("Date " + time + " is after last date of bootstrapped curve!");
+                throw new ArgumentOutOfRangeException("Date " + time + " is after last date of bootstrapped curve!");
             if (time < (double)_timeLogDF.GetKey(0))
-                throw new Exception("Date " + time + " is before first date during reverse bootstrapping of curve!");
+                throw new ArgumentOutOfRangeException("Date " + time + " is before first date during reverse bootstrapping of curve!");
             if (_timeLogDF.ContainsKey(time))
                 return (double)_timeLogDF[time];
             int index = 0;

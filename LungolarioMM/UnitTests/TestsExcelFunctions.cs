@@ -1,14 +1,12 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-
-namespace MMA.TestCases
+namespace MMAExcel.TestCases
 {
     [TestClass]
-    public class ExcelFunctions_Tests
+    public class TestsExcelFunctions
     {
         [TestMethod()]
-        public void TM_mmCreateObj_mmListObj_mmDeletaObjs()
+        public void TestMethodsmmCreateObjmmListObjmmDeleteObjs()
         {
             string name = "A";
             string type = "MODEL";

@@ -1,19 +1,18 @@
-using System;
-using ExcelDna.Integration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MMACore;
 
-namespace MMA.TestCases
+namespace MMAExcel.TestCases
 {
     [TestClass]
-    public class Curve_Tests
+    public class TestsCurve
     {
         [TestMethod()]
         public void CurveBootstrapping()
         {
             object[,] range = new object[7, 4];
             for (int i = 0; i < range.GetLength(0); i++)
-                for (int j = 0; j < range.GetLength(1); j++)
-                    range[i, j] = ExcelEmpty.Value;
+               for (int j = 0; j < range.GetLength(1); j++)
+                    range[i, j] = "";
             range[0, 0] = "Currency";
             range[0, 1] = "USD";
             range[1, 0] = "Bootstrap";
@@ -40,7 +39,6 @@ namespace MMA.TestCases
             obj2.Create("B", range);
             Assert.AreEqual(0, obj2.GetRate(0, 0.5));
             Assert.AreEqual(1, obj.GetDF(0));
-
             var curveDisp = obj2.Display();
             Assert.AreEqual("BootStrap", curveDisp[6,0]);
         }

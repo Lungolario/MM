@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMAExcel", "LungolarioMM\MM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{A322F856-79DB-404F-BC96-026F7B85D72B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMACore", "MMACore\MMACore.csproj", "{E478107A-875C-45B0-AB64-E4AC33F54DA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A322F856-79DB-404F-BC96-026F7B85D72B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A322F856-79DB-404F-BC96-026F7B85D72B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A322F856-79DB-404F-BC96-026F7B85D72B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E478107A-875C-45B0-AB64-E4AC33F54DA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E478107A-875C-45B0-AB64-E4AC33F54DA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E478107A-875C-45B0-AB64-E4AC33F54DA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E478107A-875C-45B0-AB64-E4AC33F54DA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

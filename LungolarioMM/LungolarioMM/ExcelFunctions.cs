@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Linq;
+using MMACore;
 
-namespace MMA
+namespace MMAExcel
 {
     public class ExcelFunctions : IExcelAddIn
     {
@@ -31,7 +32,7 @@ namespace MMA
         {
             try
             {
-                return ObjectHandler.CreateOrOverwriteObject(objName, objType, range).ToStringWithCounter();
+                return ObjectHandler.CreateOrOverwriteObject(objName, objType, ExcelMissingToEmptyString(range)).ToStringWithCounter();
             }
             catch (Exception e)
             {
@@ -212,6 +213,15 @@ namespace MMA
             {
                 return e.Message;
             }
+        }
+
+        private static object[,] ExcelMissingToEmptyString(object[,] range)
+        {
+            for (int i = 0; i < range.GetLength(0); i++)
+                for (int j = 0; j < range.GetLength(1); j++)
+                    if (range[i,j] == ExcelEmpty.Value)
+                        range[i,j] = "";
+            return range;
         }
     }
 }

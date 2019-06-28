@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MMA
+namespace MMACore
 {
     public class MatrixBuilder
     {

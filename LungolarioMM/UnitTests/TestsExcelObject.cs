@@ -1,10 +1,10 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MMACore;
 
-namespace MMA.TestCases
+namespace MMAExcel.TestCases
 {
     [TestClass]
-    public class ExcelObject_Tests
+    public class TestsExcelObject
     {
         [TestMethod()]
         public void ExcelObjectCreation()

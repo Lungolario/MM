@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ExcelDna.Integration;
+using System.Text;
 
-namespace MMA
+namespace MMACore
 {
     public abstract class ObjHandle
     {
@@ -17,7 +17,7 @@ namespace MMA
                 FieldInfo[] keyList = GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
                 for (int i = 0; i < range.GetLength(0); i++)
                 {
-                    if (range[i, 0] == ExcelEmpty.Value)
+                    if (range[i, 0].ToString().Length == 0)
                         continue;
                     int j;
                     for (j = 0; j < keyList.Length; j++)
@@ -27,16 +27,16 @@ namespace MMA
                             {
                                 int countRows, countColumns;
                                 for (countRows = 1; countRows + i < range.GetLength(0); countRows++)
-                                    if (range[countRows + i, 0] != ExcelEmpty.Value || range[countRows + i, 1] == ExcelEmpty.Value) break;
+                                    if (range[countRows + i, 0].ToString().Length > 0 || range[countRows + i, 1].ToString().Length == 0) break;
                                 for (countColumns = 1; countColumns < range.GetLength(1); countColumns++)
-                                    if (range[i + 1, countColumns] == ExcelEmpty.Value) break;
+                                    if (range[i + 1, countColumns].ToString().Length == 0) break;
 
                                 IIMatrix mat = (IIMatrix)Activator.CreateInstance(keyList[j].FieldType);
                                 mat.CreateMatrix(range, i + 1, countRows - 1, 1, countColumns - 1);
                                 keyList[j].SetValue(this, mat);
                                 i += countRows - 1;
                             }
-                            else if (range[i, 1] == ExcelEmpty.Value)
+                            else if (range[i, 1].ToString().Length == 0)
                                 keyList[j].SetValue(this, null);
                             else
                             {
@@ -58,7 +58,7 @@ namespace MMA
                             break;
                         }
                     if (j == keyList.Length)
-                        throw new Exception("Key " + range[i, 0] + " not available for object " + GetType().Name);
+                        throw new Exception("Key " + range[i, 0].ToString() + " not available for object " + GetType().Name);
                 }
             }
             Check();
@@ -77,7 +77,7 @@ namespace MMA
                 {
                     result.Add(new[] { key.Name }, false, true, false);
                     if (typeof(IIMatrix).IsAssignableFrom(key.FieldType))
-                        result.Add(((IIMatrix)key.GetValue(this)).ObjInfo(ExcelMissing.Value, ExcelMissing.Value), true, true, false);
+                        result.Add(((IIMatrix)key.GetValue(this)).ObjInfo("", ""), true, true, false);
                     else
                         result.Add(new[] { key.GetValue(this) }, true, false, false);
                 }
@@ -86,15 +86,15 @@ namespace MMA
         public string Serialize()
         {
             object[,] objMatrix = Display();
-            string data = "NEW" + GetType().Name.ToUpper() + "\r\n";
-            data += "_name\t" + ToString() + "\r\n";
+            StringBuilder data = new StringBuilder("NEW" + GetType().Name.ToUpper() + "\r\n");
+            data.Append("_name\t" + ToString() + "\r\n");
             for (int iRow = 0; iRow < objMatrix.GetLength(0); iRow++)
             {
                 for (int iCol = 0; iCol < objMatrix.GetLength(1); iCol++)
-                    data += objMatrix[iRow, iCol] + "\t";
-                data += "\r\n";
+                    data.Append(objMatrix[iRow, iCol] + "\t");
+                data.Append("\r\n");
             }
-            return data;
+            return data.ToString();
         }
 
         public ObjHandle TakeOverOldObject(ObjectHandler objHandler)
